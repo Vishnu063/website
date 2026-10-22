@@ -2,6 +2,8 @@
 
 ## Available now
 
+Illustrated Portrait Editions: three detailed original illustrations in a guided three-step experience; configurable card styles, lighting, framing and personal text; optional Surprise me combinations; three matching PNG formats. Individual portrait artwork is fixed.
+
 Create Persona: original anime vector customizer, a short creative quiz, saved looks on each device, exact-look sharing links, and matching PNG card/profile/banner exports. Existing Yoru discovery pages remain available.
 
 ## Public launch

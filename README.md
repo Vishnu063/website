@@ -1,10 +1,14 @@
 # Yoru · Beyond the ordinary
 
-A cinematic ten-page anime discovery website. Midnight blue, warm apricot, original anime artwork, and stories that stay with you.
+A cinematic eleven-page anime discovery website. Midnight blue, warm apricot, original anime artwork, and stories that stay with you.
 
 [Open the website](https://yoru-anime-vishnu.vishnukushwaha63.chatgpt.site) · [DevOps practice roadmap](docs/devops-roadmap.md)
 
 ## Sample screenshot
+
+Latest: the guided illustrated studio
+
+![Yoru illustrated identity studio](docs/portrait-studio.jpg)
 
 Actual browser capture of the homepage:
 
@@ -18,7 +22,7 @@ Anime Identity Studio:
 
 ![Anime Identity Studio customizer](docs/identity-studio.jpg)
 
-## Ten pages
+## Eleven pages
 
 | Page | What you can do |
 |---|---|
@@ -31,7 +35,8 @@ Anime Identity Studio:
 | Muses | Meet adult heroines Akira (28) and Luna (30), with gently moving portraits |
 | Atelier | Switch muse, choose Dusk/Noir/Dream lighting, save the look locally |
 | Moon Garden | Moonlit animated scene, fireflies, reflections, and a motion pause control |
-| Create Persona | Quiz, six presets, character customization, undo/redo, saved gallery, sharing and three PNG exports |
+| Character Builder | Quiz, six vector presets, feature customization, undo/redo, saved gallery and PNG exports |
+| Create Identity | Three detailed illustrated portraits, guided creation, card styling, lighting, framing, surprises and matching identity kit |
 
 Responsive layouts, mobile navigation, keyboard focus styles, reduced-motion support, and native dialogs. This is an original fictional showcase, not a streaming service. Favourites are browser-local; there is no account/backend sync.
 
@@ -57,19 +62,19 @@ docker compose down
 
 - `Dockerfile`, `compose.yaml`, and nginx config for container deployment.
 - `/health.json` on every host; `/health` additionally on nginx.
-- GitHub Actions definition: validate pages/assets, build Docker, smoke-test all ten pages.
+- GitHub Actions definition: validate pages/assets, build Docker, smoke-test all eleven pages.
 - [Seven practical lab stages](docs/devops-roadmap.md): Linux/Git → Docker → CI → EC2 → CD/rollback → Kubernetes → monitoring.
 
 Docker and the CI workflow are provided for practice; the Docker build was not run in the authoring environment. No cloud resources or AWS deployment have been configured.
 
 ## Verification
 
-Passed locally: JavaScript syntax, ten page entrypoints, local asset references, artwork presence and health JSON. Browser verified: homepage appearance, combined genre/search filtering, favourites retained across navigation, and story dialog opening/closing. New browser checks: muse and lighting selection, saved look surviving reload, garden pause (computed animation state), and reflection changes. Responsive CSS is included; a physical mobile-device check remains useful.
+Passed locally: JavaScript syntax, eleven page entrypoints, local asset references, artwork presence and health JSON. Browser verified: homepage appearance, combined genre/search filtering, favourites retained across navigation, and story dialog opening/closing. New browser checks: muse and lighting selection, saved look surviving reload, garden pause (computed animation state), and reflection changes. Responsive CSS is included; a physical mobile-device check remains useful.
 
 ## Source layout
 
 ```text
-dist/           Ten HTML pages, shared CSS/JS, optimized artwork
+dist/           Eleven HTML pages, shared CSS/JS, optimized artwork
 scripts/        Dependency-free structural checks
 docs/           Real browser screenshot and DevOps roadmap
 .github/        CI workflow
@@ -101,3 +106,15 @@ Artwork in the creator is original procedural vector illustration, not photoreal
 Verified in browser: presets/customization, save/reload, undo/redo, share-link restoration, three quiz questions/result application, and actual downloads. Downloaded PNGs were inspected as 1080×1350, 1024×1024 and 1500×500. Automated checks cover malformed share links, Unicode names, XML escaping, actual outfit/world export differences, and namespaced SVG gradients so gallery colours remain independent.
 
 [Future business and advertising plan](docs/business-plan.md).
+
+## Illustrated Portrait Editions — v1.3
+
+The primary Create Identity experience now uses three detailed original AI-generated illustrations: Akira (28), Luna (30), and Ren (30). The simplified navigation keeps Home, Create Identity, Discover and Muses visible, with other existing pages under Explore.
+
+One guided path: choose a portrait → personalize → download/share. Change the name, title, motto, layout (Cinema/Gallery/Nocturne), signature accent, lighting (Natural/Dusk/Noir), zoom and vertical framing. Preview Card/Profile/Banner before downloading. Save up to eight looks locally, restore exact editions from sharing links, or use the optional Surprise me control for a new coordinated combination.
+
+The illustrations have fixed faces/hair/outfits. This mode changes card composition, lighting, crop and text; it does not regenerate or edit clothing. The separate Character Builder retains modular hair/outfit/feature edits. There is no per-visitor AI generation, account requirement or photo upload. Surprises are random curated combinations, not a guarantee of a globally unique result for each visitor.
+
+Exported PNGs were verified at 1080×1350 (card), 1080×1080 (profile), and 1500×500 (banner). Browser checks covered personalization, save, exact shared-link restoration, surprises and simpler navigation. A standalone retry verified the banner file after an initial browser download file failed to appear. Automated checks cover artwork existence, shared-state validation, invalid values, Unicode and surprise presets. Physical mobile-device verification remains pending.
+
+Artwork credits and generation briefs: [portrait-art.md](docs/portrait-art.md). The current Sites publication remains owner-private; public audience and ad-network integrations are not enabled.
