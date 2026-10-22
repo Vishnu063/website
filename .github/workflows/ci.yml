@@ -20,6 +20,6 @@ jobs:
             sleep 1
           done
           curl -fsS http://localhost:8080/health.json
-          for page in index discover worlds characters journal collection muses atelier garden; do
+          for page in index discover worlds characters journal collection muses atelier garden studio; do
             curl -fsS "http://localhost:8080/$page.html" > /dev/null
           done
