@@ -10,9 +10,8 @@
 
 ## Still unverified or pending
 
-- The recovered build's download-file inspection was interrupted by browser/host transport failures; a download attempt or UI status alone is not treated as fresh independent file verification.
 - Hosted ChatGPT login and account provisioning, two real-user save/vote/reply journeys, and moderator allowlist configuration. Simulated identities in API tests do not prove live OAuth success.
-- Playwright CLI suite, Docker Compose, backup helper/restore drill and AWS deployment. Those tools/configurations exist; authoring this workflow is not evidence that it passed. Supported cloud browser checks used Playwright locators.
+- A container restore drill, hosted backup scheduling and AWS deployment remain unverified.
 - Physical mobile-device tests, a full accessibility audit, load/penetration tests and external social crawler previews.
 - Public search indexing and friend invitations: the Site remains owner-private.
 
@@ -29,3 +28,11 @@ No fake users, discussions, votes, rankings or rewards are seeded. Daily games, 
 Sites deployment version 5 succeeded from source checkpoint `ecb270fc19a49b587ad0e528b881ae2dc8d410cb`. A service-authenticated request to the deployed `/api/health` returned HTTP 200 with `status: ok`, `database: ready`, `version: 2.0.0`. The live D1 overview confirmed all nine application tables. The audience remains owner-private.
 
 GitHub run 39915731222 passed install, checks, production audit and build, then failed Docker build because the slim builder lacked Python for the legacy asset check. Python was added to the builder stage; the follow-up run must be checked before claiming Docker or Playwright success.
+
+The recovered mobile menu and local `/api/health` were verified again. The local SQLite online-backup helper produced three backup files; each reopened copy returned `PRAGMA integrity_check = ok`. This does not establish a hosted backup or a container restore drill.
+
+GitHub run 39916268777 built the Docker image successfully, then identified an EACCES error creating the non-root runtime directory. Directory ownership was corrected in commit `8d82ec6018a4d57ed91f735fde908614959f523d`; the follow-up GitHub run 39916744009 succeeded, including Docker Compose startup, actual database readiness and the desktop/mobile Playwright suite. Current work remains entirely 2D, with 3D deferred.
+
+## Reference design refinement
+
+The recent user screenshot shows the original Yoru portrait studio. The home now follows that direction with a charcoal surface, warm rose accents, editorial typography, three original character choices and an interactive full portrait preview. The existing quiz and community features remain available; this is entirely 2D. The shared ChatGPT URL itself could not be fetched, so the screenshot is the design source.

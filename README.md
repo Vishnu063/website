@@ -10,11 +10,11 @@ A working anime identity experience connected to a database-backed battle discus
 
 Browser capture of the implemented application, not concept art:
 
-![ANIMEVERSE running homepage](docs/animeverse-home.jpg)
+![ANIMEVERSE running homepage](docs/animeverse-portrait-home.jpg)
 
 | Mobile layout | Personalized identity |
 | --- | --- |
-| ![Mobile website](docs/animeverse-mobile.jpg) | ![Power result](docs/animeverse-power-result.jpg) |
+| ![Mobile website](docs/animeverse-portrait-mobile.jpg) | ![Power result](docs/animeverse-power-result.jpg) |
 
 Mobile capture uses the actual site at a 390 × 844 iframe viewport, not a physical-device test.
 
@@ -137,3 +137,5 @@ The Phase 1 foundation is implemented and tested at the API level. Live hosted s
 4. Phase 4: quality rigged 3D models, guilds and scheduled tournaments.
 
 High-quality 3D requires actual rigged models, UV textures, coherent topology, animations and mobile LOD budgets. Existing 2D artwork is not presented as production-quality 3D. Core gameplay stays free; future cosmetics or editorial sponsors must not create paid battle advantages.
+
+The homepage now follows the supplied Yoru portrait-studio screenshot: charcoal surfaces, warm rose accents, three selectable original portraits and a live preview. Choose a portrait to open a personalizable card, or take the five-question power test. The reference conversation URL was inaccessible; the recent uploaded screenshot supplied the visual direction.

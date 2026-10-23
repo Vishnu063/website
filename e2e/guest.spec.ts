@@ -70,3 +70,12 @@ test("health checks the actual database", async ({ request }) => {
   expect(r.status()).toBe(200);
   expect((await r.json()).database).toBe("ready");
 });
+
+test("portrait choice opens the matching personalizable identity", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Choose Luna", exact: true }).click();
+  await expect(page.getByRole("img", { name: "Luna portrait preview", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Make this my identity", exact: true })).toHaveAttribute("href", "/hero/11111");
+  await page.getByRole("link", { name: "Make this my identity", exact: true }).click();
+  await expect(page.getByLabel("Give your hero a name", { exact: true })).toBeVisible();
+});

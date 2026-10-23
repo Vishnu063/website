@@ -9,83 +9,62 @@ import {
 } from "lucide-react";
 import { origins } from "../../lib/power";
 import { art, event } from "./core";
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
+const portraits = [
+  { name: "Akira", art: "akira", title: "The light that stays.", faction: "Dawn Wardens", power: "Solar flame", description: "A quiet courage. A spark that refuses to go out.", code: "00000" },
+  { name: "Luna", art: "luna", title: "A little mystery. All you.", faction: "Celestial Archive", power: "Lunar illusions", description: "For the dreamers who see a different kind of possibility.", code: "11111" },
+  { name: "Ren", art: "ren", title: "Born to find another way.", faction: "Skyline Runners", power: "Kinetic lightning", description: "A restless spirit, with the whole skyline ahead.", code: "22222" },
+];
 export default function Home() {
+  const [selected, setSelected] = useState(0);
+  const portrait = portraits[selected];
   return (
     <>
-      <section className="hero">
-        <div className="hero-back" />
-        <div className="hero-wash" />
-        <div className="petals" aria-hidden="true">
-          {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-            <span key={i} style={{ "--i": i } as CSSProperties}>
-              ✧
-            </span>
-          ))}
+      <section className="identity-intro">
+        <div>
+          <div className="eyebrow">YOUR WORLD. YOUR AFTER HOURS.</div>
+          <h1>An identity worth<br /><em>making your own.</em></h1>
+          <p>Beautiful original portraits. Your name, your mood, your story.<br />Leave with something you can actually call your own.</p>
         </div>
-        <div className="hero-body">
-          <div className="eyebrow">
-            <span className="dot" /> AN ORIGINAL UNIVERSE. AN EXTRAORDINARY YOU.
+        <button className="surprise-choice" onClick={() => setSelected((selected + 1 + Math.floor(Math.random() * 2)) % portraits.length)}>
+          <span><Sparkles size={18} /> Surprise me</span>
+          <small>A different face. A different beginning.</small>
+        </button>
+      </section>
+      <section className="identity-workspace" aria-label="Find your original anime character">
+        <div className="identity-flow">
+          <ol className="identity-steps">
+            <li><i>01</i><span>Choose<small>Your starting point</small></span></li>
+            <li><i>02</i><span>Personalize<small>Make the story yours</small></span></li>
+            <li><i>03</i><span>Take it with you<small>Save a shareable card</small></span></li>
+          </ol>
+          <div className="eyebrow">A PORTRAIT, FULL OF POSSIBILITY</div>
+          <h2>Who feels like you?</h2>
+          <div className="identity-choices" role="group" aria-label="Original portraits">
+            {portraits.map((p, i) => <button key={p.art} aria-pressed={selected === i} aria-label={`Choose ${p.name}`} onClick={() => setSelected(i)}>
+              <div><img src={art(p.art)} alt={`${p.name}, an original anime character`} fetchPriority={i === 0 ? "high" : "auto"} />{selected === i && <span className="portrait-check"><Check size={13} /></span>}</div>
+              <span><b>{p.name}</b><small>{p.power}</small></span>
+            </button>)}
           </div>
-          <h1>
-            You weren’t born
-            <br />
-            to be a <em>side character.</em>
-          </h1>
-          <p>
-            Discover your power. Find your faction.
-            <br />
-            Step into an anime story with your name on it.
-          </p>
-          <div className="hero-buttons">
-            <a
-              href="/power"
-              className="btn primary"
-              onClick={() => event("power_start")}
-            >
-              <Sparkles size={18} /> Discover my power{" "}
-              <ArrowUpRight size={18} />
-            </a>
-            <a href="/arena" className="btn glass">
-              <Swords size={18} /> Enter the arena
-            </a>
+          <p className="identity-hint">Choose a face that speaks to you. There’s no wrong beginning.</p>
+          <div className="identity-selection" aria-live="polite">
+            <span className="eyebrow">{portrait.faction}</span>
+            <h3>{portrait.title}</h3>
+            <p>{portrait.description}</p>
           </div>
-          <div className="hero-proof">
-            <span>
-              <Check size={14} /> Play without an account
-            </span>
-            <span>
-              <Check size={14} /> Original heroes
-            </span>
-            <span>
-              <Check size={14} /> Always free to begin
-            </span>
+          <div className="identity-actions">
+            <a href={`/hero/${portrait.code}`} className="btn primary">Make this my identity <ArrowUpRight size={17} /></a>
+            <a href="/power" className="inline-link" onClick={() => event("power_start")}>Discover my power <ArrowRight size={16} /></a>
           </div>
+          <a className="identity-studio-link" href="/legacy/portraits.html">Want more? Open the full portrait studio ↗</a>
         </div>
-        <div className="hero-art">
-          <img
-            src={art("akira")}
-            alt="Akira, an original flame guardian, in an illuminated fantasy city"
-            fetchPriority="high"
-          />
-          <div className="art-gradient" />
-          <div className="character-label">
-            <span className="eyebrow">MEET YOUR POSSIBLE FUTURE</span>
-            <strong>Ember Sentinel</strong>
-            <small>
-              DAWN WARDENS <span>✦</span> SOLAR FLAME
-            </small>
+        <div className="identity-preview">
+          <div className="preview-topline"><span>YOUR ORIGINAL CHARACTER</span><span>2D PORTRAIT</span></div>
+          <div className="identity-image">
+            <img src={art(portrait.art)} alt={`${portrait.name} portrait preview`} fetchPriority="high" />
+            <div className="identity-caption"><span>{portrait.faction}</span><h2>{portrait.name}<em> / {portrait.power}</em></h2></div>
           </div>
-          <span className="vertical-jp" aria-hidden="true">
-            物語の主人公になる
-          </span>
-        </div>
-        <div className="hero-bottom">
-          <span>
-            01 <i /> THE FIRST CHAPTER
-          </span>
-          <a href="#choose">YOUR ADVENTURE STARTS BELOW ↓</a>
-          <span>世界はあなたを待っている</span>
+          <div className="preview-foot"><span>YOUR NEXT CHAPTER STARTS HERE</span><span>✦</span></div>
         </div>
       </section>
       <section className="section" id="choose">
