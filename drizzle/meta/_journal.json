@@ -8,6 +8,13 @@
       "when": 1792738384514,
       "tag": "0000_tired_hobgoblin",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1792742274197,
+      "tag": "0001_majestic_juggernaut",
+      "breakpoints": true
     }
   ]
 }

@@ -13,6 +13,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import { PlayHub, Games, Quests, Leaderboards, PlayerPage } from "./components/games";
 import Home from "./components/home";
 import { Power, SharedHero } from "./components/power";
 import { Arena, Battle } from "./components/arena";
@@ -146,6 +147,7 @@ export default function Experience({
             <a className={active === "home" ? "selected" : ""} href="/">
               Discover
             </a>
+            <a href="/play" className={active === "play" ? "selected" : ""}>Play & explore</a>
             <a className={active === "arena" ? "selected" : ""} href="/arena">
               Battle Arena
             </a>
@@ -212,7 +214,7 @@ export default function Experience({
               ready={ready}
               tell={setNotice}
             />
-          ) : path === "/profile" ? (
+          ) : path === "/play" ? (<PlayHub/>) : path === "/games" ? (<Games tell={setNotice}/>) : path === "/quests" ? (<Quests tell={setNotice}/>) : path === "/leaderboards" ? (<Leaderboards/>) : path.startsWith("/players/") ? (<PlayerPage id={path.split("/")[2]}/>) : path === "/profile" ? (
             <Profile session={session} ready={ready} tell={setNotice} />
           ) : path === "/settings" ? (
             <Preferences session={session} tell={setNotice} />

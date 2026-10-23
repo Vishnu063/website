@@ -1,3 +1,4 @@
+import { handlePlay } from "./play-api";
 import { cleanText, resultFromCode, ValidationError } from "./power.ts";
 export type User = { id: string; name: string };
 export interface Database {
@@ -65,6 +66,7 @@ export async function handleApi(
     return b;
   };
   try {
+    if(p[0] === "play") { const response=await handlePlay(req,ctx,p.slice(1)); status=response.status; return response; }
     if (p[0] === "health") {
       await db.all("SELECT 1");
       return json({ status: "ok", database: "ready", version: "2.0.0" });

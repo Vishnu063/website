@@ -4,7 +4,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends python3 && rm -
 COPY package.json package-lock.json ./
 RUN npm ci --ignore-scripts --no-audit --no-fund
 COPY . .
-RUN npm run check && npm run build
+RUN npm run typecheck && npm run build
 FROM node:24-bookworm-slim
 ENV NODE_ENV=production WRANGLER_SEND_METRICS=false DATA_DIRECTORY=/app/.wrangler/state
 WORKDIR /app

@@ -88,3 +88,24 @@ export const audit = sqliteTable("audit", {
   target: text("target").notNull(),
   created: integer("created").notNull(),
 });
+
+export const gamePlayers = sqliteTable("game_players", {
+  user: text("user").primaryKey(), publicId: text("public_id").notNull().unique(),
+  settings: text("settings").notNull().default('{}'), created: integer("created").notNull(),
+});
+export const gameRuns = sqliteTable("game_runs", {
+  id: text("id").primaryKey(), user: text("user").notNull(), kind: text("kind").notNull(),
+  state: text("state").notNull(), version: integer("version").notNull().default(0),
+  score: integer("score").notNull().default(0), complete: integer("complete").notNull().default(0),
+  created: integer("created").notNull(), updated: integer("updated").notNull(),
+}, t => [index("runs_owner").on(t.user,t.kind,t.updated)]);
+export const gameEvents = sqliteTable("game_events", {
+  id: text("id").primaryKey(), user: text("user").notNull(), kind: text("kind").notNull(),
+  source: text("source").notNull(), xp: integer("xp").notNull(), score: integer("score").notNull().default(0),
+  created: integer("created").notNull(),
+}, t => [index("events_owner").on(t.user,t.created),index("events_kind").on(t.kind,t.created)]);
+export const notifications = sqliteTable("notifications", {
+  id: text("id").primaryKey(), user: text("user").notNull(), kind: text("kind").notNull(),
+  title: text("title").notNull(), href: text("href").notNull(), read: integer("read").notNull().default(0),
+  created: integer("created").notNull(),
+}, t => [index("notifications_owner").on(t.user,t.created)]);

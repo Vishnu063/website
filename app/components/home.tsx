@@ -68,6 +68,7 @@ export default function Home() {
         </div>
       </section>
       <section className="section" id="choose">
+        <a className="btn primary" href="/play">Enter the play universe <ArrowRight size={17}/></a>
         <div className="section-heading">
           <div>
             <div className="eyebrow">

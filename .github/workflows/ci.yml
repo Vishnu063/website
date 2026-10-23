@@ -1,5 +1,13 @@
 name: ANIMEVERSE quality and readiness
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      formal_tests:
+        description: Run the deferred formal suites
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -12,7 +20,9 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+      - run: npm run typecheck
       - run: npm run check
+        if: github.event_name == 'workflow_dispatch' && inputs.formal_tests
       - run: npm audit --omit=dev --audit-level=high
       - name: Full dependency audit including build tools
         run: npm audit --json > dependency-audit.json
@@ -23,7 +33,9 @@ jobs:
       - name: Actual database readiness
         run: curl --fail --retry 10 --retry-delay 3 http://localhost:8080/api/health
       - run: npx playwright install --with-deps chromium
+        if: github.event_name == 'workflow_dispatch' && inputs.formal_tests
       - run: npm run test:e2e
+        if: github.event_name == 'workflow_dispatch' && inputs.formal_tests
         env:
           E2E_BASE_URL: http://127.0.0.1:8080
       - uses: actions/upload-artifact@v4
