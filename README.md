@@ -12,6 +12,12 @@ Browser capture of the implemented application, not concept art:
 
 ![ANIMEVERSE running homepage](docs/animeverse-home.jpg)
 
+| Mobile layout | Personalized identity |
+| --- | --- |
+| ![Mobile website](docs/animeverse-mobile.jpg) | ![Power result](docs/animeverse-power-result.jpg) |
+
+Mobile capture uses the actual site at a 390 × 844 iframe viewport, not a physical-device test.
+
 ## Phase 1 features
 
 - Cinematic responsive home, original characters, mobile navigation, reduced motion, keyboard focus and optional synthesized ambient sound, off by default.

@@ -5,7 +5,7 @@
 - TypeScript check and production Worker/browser build (Vite 8.3.5).
 - 11 API/game integration tests against actual isolated SQLite databases, using the committed migration. Tests cover all 1,024 power combinations, guest/account boundaries, save/read/delete isolation, battle creation, duplicate and concurrent voting, replies, follows, reports, moderation authorization, audit writes, blocking, origin validation, payload validation/limits, malformed JSON, wrong media type, rate limits and an actually closed database returning a safe 503.
 - 10 preserved creator/portrait tests and eleven legacy page/asset checks.
-- Recovered browser homepage and all five guest power questions, followed by name personalization and the reproducible result URL. The homepage screenshot is a fresh real browser capture.
+- Recovered browser homepage and all five guest power questions, followed by name personalization and the reproducible result URL. The homepage, personalized result and mobile layout screenshots are fresh real browser captures. Mobile menu and database health were checked again in the recovered build.
 - Before the workspace interruption, browser checks verified the same power-card export as a real 1080 × 1350 PNG, the generated 1200 × 630 social image, database health, genuine empty arena, guest posting boundary, 390 × 844 responsive layout/mobile menu, challenge link copying using a clearly labeled local-only fixture, motion preference persistence and the legacy builder redirect with saved state intact. That local fixture was never inserted into production.
 
 ## Still unverified or pending
@@ -23,3 +23,9 @@ Dependencies were reduced from the broad starter to the packages used here and m
 ## Scope
 
 No fake users, discussions, votes, rankings or rewards are seeded. Daily games, story progression, 3D worlds, clans and tournaments are later phases. The published Site source and GitHub are separate repositories; verify the GitHub update and deployment result independently.
+
+## Hosted deployment and CI
+
+Sites deployment version 5 succeeded from source checkpoint `ecb270fc19a49b587ad0e528b881ae2dc8d410cb`. A service-authenticated request to the deployed `/api/health` returned HTTP 200 with `status: ok`, `database: ready`, `version: 2.0.0`. The live D1 overview confirmed all nine application tables. The audience remains owner-private.
+
+GitHub run 39915731222 passed install, checks, production audit and build, then failed Docker build because the slim builder lacked Python for the legacy asset check. Python was added to the builder stage; the follow-up run must be checked before claiming Docker or Playwright success.
