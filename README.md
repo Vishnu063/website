@@ -127,6 +127,8 @@ Artwork is original AI-generated anime-inspired artwork already produced for the
 
 ## Status and roadmap
 
+**Current scope: entirely 2D. 3D work is deferred and is not part of this release.**
+
 The Phase 1 foundation is implemented and tested at the API level. Live hosted sign-in, two real-account interactions, moderator configuration and independent AWS production are still verification/operations work. The audience remains owner-private; shared links do not grant friends access. Robots and page metadata intentionally discourage indexing until public launch. Canonical URLs, sitemap, structured site metadata and dynamic hero social previews are prepared.
 
 1. Verify live sign-in/save/vote flows with two real accounts; configure moderators, contact details, retention and backups.
