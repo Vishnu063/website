@@ -1,6 +1,6 @@
 {
   "name": "animeverse",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
   "engines": {
     "node": ">=22.13.0"
@@ -14,12 +14,15 @@
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --test tests/*.test.ts && node --test scripts/*.test.cjs",
     "check": "npm run typecheck && npm test && python3 scripts/check.py",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "build:data": "node scripts/build-data.mjs",
+    "db:postgres:export": "node scripts/export-postgres.mjs"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",
     "lucide-react": "^1.31.0",
     "next": "16.4.2",
+    "pg": "^8.23.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "zod": "^3.25.76"
@@ -27,8 +30,10 @@
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.37.1",
     "@cloudflare/workers-types": "4.20260515.1",
+    "@playwright/test": "1.61.1",
     "@tailwindcss/postcss": "4.2.1",
     "@types/node": "22.19.19",
+    "@types/pg": "^8.23.1",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.2",
@@ -41,8 +46,7 @@
     "typescript": "5.9.3",
     "vinext": "1.0.0-beta.5",
     "vite": "8.3.5",
-    "wrangler": "4.92.0",
-    "@playwright/test": "1.61.1"
+    "wrangler": "4.92.0"
   },
   "type": "module",
   "overrides": {

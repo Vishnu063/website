@@ -87,6 +87,19 @@ export function Arena({
           ? "Original theories, friendly rivalries, and conversations built by fans."
           : "Hypothetical battles. Clear conditions. Fan opinions, never official outcomes."}
       </Title>
+      {community && (
+        <div className="play-controls">
+          <a className="btn glass" href="/polls">
+            Community polls
+          </a>
+          <a className="btn glass" href="/clans">
+            Find a clan
+          </a>
+          <a className="btn glass" href="/news">
+            Original theories
+          </a>
+        </div>
+      )}
       <div className="arena-banner">
         <Swords size={38} />
         <div>

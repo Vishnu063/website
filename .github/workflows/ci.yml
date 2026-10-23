@@ -28,6 +28,8 @@ jobs:
         run: npm audit --json > dependency-audit.json
         continue-on-error: true
       - run: npm run build
+      - run: npm run build:data
+      - run: docker build -f Dockerfile.data -t animeverse-data:build .
       - run: docker compose build
       - run: docker compose up -d --wait --wait-timeout 180
       - name: Actual database readiness

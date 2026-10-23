@@ -37,6 +37,19 @@ export async function generateMetadata({
       };
   }
   const names: Record<string, string> = {
+    play: "Play & explore",
+    games: "Daily guessing games",
+    quests: "Daily quests",
+    leaderboards: "Real player rankings",
+    story: "Story mode",
+    combat: "Strategic combat",
+    world: "Explore the world",
+    clans: "Anime clans",
+    events: "Tournaments",
+    notifications: "Notifications",
+    polls: "Community polls",
+    news: "Original news & theories",
+    collection: "Original character collection",
     arena: "Battle Arena",
     power: "Discover Your Power",
     community: "Community",
@@ -57,6 +70,8 @@ export default async function Page({
   params: Promise<{ slug: string[] }>;
 }) {
   const { slug } = await params;
+  if (slug.length === 1 && slug[0] === "creator")
+    redirect("/legacy/portraits.html");
   if (
     slug.length === 1 &&
     [

@@ -1,31 +1,69 @@
 # ANIMEVERSE operations
 
-## Release and health
+## Current release posture
 
-Run `npm ci`, `npm run check`, production build and audits. Review migrations and test guest/account boundaries. Publish verified source through Sites, preserving project identity and audience. Require a terminal successful deployment and real `/api/health` database readiness. A static HTML 200 is insufficient.
+This expansion intentionally skips formal test authoring/execution, Playwright and two-account checks. TypeScript and frontend/private-API builds are compilation evidence only. Preserve the current owner-private audience. Do not change DNS, public access, security groups or production targets without authorization.
 
-API logs are structured JSON with request ID, method, path, status and duration. They omit request bodies, email addresses, secrets and database exceptions. Correlate problems using `X-Request-ID`. No external monitoring or metrics scraper is connected.
+The default backend is hosted D1. The optional PostgreSQL service is compiled but has not been run against PostgreSQL here. There is no automatic data cutover.
 
-Configure `ADMIN_USER_IDS` with real site-scoped identities before inviting a wider audience. Store secrets in runtime settings. Never promote a first visitor to administrator automatically.
+## Build and deployment
 
-## Rollback
+1. Install the lockfile with `npm ci`; run `npm run typecheck`, `npm run build` and `npm run build:data`.
+2. Review `drizzle/0001`–`0004` and their PostgreSQL equivalents. Migrations are additive; keep applied SQL immutable.
+3. Keep a known source commit, image digest and database backup. Publish the exact source/build through the Sites workflow, preserving audience. Sites applies D1 migrations before the Worker.
+4. A terminal successful deployment verifies publication only. `/api/health` must return `status: ok` and `database: ready` before claiming service readiness. It queries the expansion schema.
+5. Staff moderation and configure real site-scoped `ADMIN_USER_IDS` before enabling social competition for outside users. Admin scheduling is available on `/events`; reports and action audit history on `/admin`.
 
-Sites: redeploy a previous successful saved version, after checking database compatibility. The initial migration is additive; the former static Yoru app can ignore its new tables. Code rollback does not imply data restoration.
+GitHub Actions defaults to type checks, production/full dependency audits, frontend/private-API builds and container/readiness work. Formal suites are manual opt-in and were not run for this release. Full audit output remains visible even when nonblocking.
 
-Docker lab: retain a previous image digest, back up the database before release, promote the next immutable image, verify health, then switch traffic. Roll back the image if health fails. Restore data only after assessing migration compatibility and acceptable data loss. Registry promotion and automated AWS deployment are not configured.
+## PostgreSQL service and cutover
 
-## Local backup helper
+`compose.postgres.yaml` runs PostgreSQL 17, the private Node API and daily backups on an internal Compose network, with persistent named volumes. It publishes no ports. The API performs schema migrations under an advisory lock before listening, checks shared bearer tokens in constant time and trusts a user identity only from the authorized Worker. Never put `DATA_API_TOKEN` in frontend code or let an external caller supply `X-AV-User` through an unauthenticated proxy.
+
+Before cutover, provision a secured HTTPS ingress reachable by the Worker, set the exact `SITE_ORIGIN`, require verified TLS for remote PostgreSQL, configure least-privilege DB credentials and network access, and review the service’s actual runtime behavior. Do not point `DATA_API_URL` at a Docker-only hostname from a hosted Worker.
+
+DDL export does not copy D1 data. Quiesce writes, export/import all tables preserving identifiers and foreign keys, reconcile row counts and representative records, verify auth/CSRF and transaction semantics, and perform a restore drill. Then change the server-side `DATA_API_URL` and matching token. This checklist is required future operator work, not a claim that it was performed.
+
+Independent AWS frontend hosting additionally requires a real OAuth/session adapter. The guest Docker lab deliberately strips Sites identity headers. Merely exposing that lab is not a secure signed-in AWS production deployment.
+
+## Backups and recovery
+
+D1: enable the host’s supported recovery/export policy. Local Docker SQLite backups do not protect the hosted database.
+
+Local lab:
 
 ```bash
 docker compose exec app node scripts/backup.mjs
 ```
 
-This uses SQLite's online backup API, not a copy of an active WAL file. It is provided but unverified inside Docker here. No backup scheduler or retention policy is installed. Before public launch, choose retention and access controls and perform a restore drill.
+The helper uses SQLite’s online backup API. Before restore, stop writers, preserve current state, restore a compatible copy and reconcile records. A file copied from a live WAL database is not a valid replacement for an online backup.
 
-To restore a lab backup, stop the app, preserve current state, identify the corresponding Miniflare SQLite file, replace it with a verified backup, handle obsolete WAL/SHM files only with the database stopped, restart and check a known record and health.
+PostgreSQL: the backup service writes a custom-format `pg_dump` daily, then removes dump files older than 14 days. Dumps are written to a temporary file and renamed only on success. Backup volumes on the same host do not protect against host loss; provision encrypted, private off-host copies and alerts. No off-host service is configured here.
 
-Local backups do not protect the hosted D1 database. Configure hosting-supported exports/recovery and test a restoration separately.
+Example restore procedure for a deliberately selected dump (not executed):
 
-## AWS production gap
+```bash
+docker compose -f compose.postgres.yaml stop data-api
+docker compose -f compose.postgres.yaml run --rm --entrypoint sh backup -ec 'pg_restore -h postgres -U animeverse -d animeverse --clean --if-exists /backups/SELECTED.dump'
+docker compose -f compose.postgres.yaml up -d data-api
+```
 
-EC2 can run the guest development lab. An independent public AWS release still needs a production server/runtime adapter, trusted authentication, PostgreSQL conversion and integration tests if selected, TLS, restricted security groups, secret management, scheduled backups and a real deployment target. No AWS deployment or PostgreSQL compatibility is claimed.
+Restoring replaces database content and can lose newer activity. Obtain operational authorization, retain the current database and inspect the dump before running a restore.
+
+## Rollback
+
+Sites: redeploy a previously successful saved version after confirming it can operate with the expanded schema. Code rollback does not reverse migrations or restore data. The additions are new tables/nullable columns; older code can ignore them, but it will not understand later game activity.
+
+PostgreSQL API: retain the prior immutable image digest, stop writes if required, deploy the old image only when schema-compatible, and check health. A D1-to-PostgreSQL cutover rollback requires reconciling writes made after cutover; toggling an environment variable can strand newer data. Never do that blindly.
+
+## Monitoring, schedules and retention
+
+API logs include request IDs, paths, status, method and duration; private service logs omit sensitive request payloads. Connect a real log/metrics/alerting destination before public launch. Alert on readiness failure, 5xx rate, backup failure and DB storage growth. No monitoring backend or alert route is connected.
+
+Daily/weekly quests use server UTC calculations; synchronize clocks. Tournaments activate through participant/admin requests after the scheduled opening; pages reconcile completed attempts and deadlines. Tied matches need an administrator to authorize replay. A future background scheduler may trigger these same authorized transitions, but none is silently assumed.
+
+Guest cookies expire after 30 days. Define and communicate retention, then schedule deletion of orphaned guest records older than the retention window, old practice attempts and expired rate-limit buckets. Preserve account story history and required audits according to the approved policy. No cleanup job has been silently installed.
+
+## Public release gate
+
+Before authorization to make the Site public: review dependencies and CSP, complete deferred game/auth/authorization tests, inspect mobile and keyboard flows, configure administrators and reporting, verify PostgreSQL only if selected, validate backup recovery, set legal contact/retention policies, and establish incident/rollback ownership. Email/push, paid cosmetics, ads and public infrastructure remain disabled/unprovisioned.

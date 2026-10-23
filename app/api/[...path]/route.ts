@@ -5,6 +5,47 @@ export const dynamic = "force-dynamic";
 async function handler(req: Request) {
   const identity = await getChatGPTUser(),
     binding = env.DB!;
+  const runtime = env as unknown as {
+    DATA_API_URL?: string;
+    DATA_API_TOKEN?: string;
+  };
+  if (runtime.DATA_API_URL) {
+    if (!runtime.DATA_API_TOKEN || runtime.DATA_API_TOKEN.length < 32)
+      return Response.json(
+        { error: "Private data service is not configured." },
+        { status: 503 },
+      );
+    const headers = new Headers();
+    for (const name of [
+      "content-type",
+      "cookie",
+      "origin",
+      "cf-connecting-ip",
+    ]) {
+      const value = req.headers.get(name);
+      if (value) headers.set(name, value);
+    }
+    headers.set("Authorization", "Bearer " + runtime.DATA_API_TOKEN);
+    if (identity) headers.set("X-AV-User", identity.userId);
+    try {
+      return await fetch(
+        runtime.DATA_API_URL.replace(/\/$/, "") +
+          new URL(req.url).pathname +
+          new URL(req.url).search,
+        {
+          method: req.method,
+          headers,
+          body: ["GET", "HEAD"].includes(req.method) ? undefined : req.body,
+          signal: AbortSignal.timeout(15000),
+        },
+      );
+    } catch {
+      return Response.json(
+        { error: "Private data service unavailable." },
+        { status: 503 },
+      );
+    }
+  }
   const db: Database = {
     all: async (sql, args = []) => {
       const r = await binding

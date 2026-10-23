@@ -1,5 +1,12 @@
 "use client";
-import {Clans,Events,Notifications,FriendChallenge,Polls,News} from "./components/social";
+import {
+  Clans,
+  Events,
+  Notifications,
+  FriendChallenge,
+  Polls,
+  News,
+} from "./components/social";
 import { Combat, Story, World, Collection } from "./components/adventures";
 import { useEffect, useState, useRef } from "react";
 import {
@@ -15,7 +22,13 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { PlayHub, Games, Quests, Leaderboards, PlayerPage } from "./components/games";
+import {
+  PlayHub,
+  Games,
+  Quests,
+  Leaderboards,
+  PlayerPage,
+} from "./components/games";
 import Home from "./components/home";
 import { Power, SharedHero } from "./components/power";
 import { Arena, Battle } from "./components/arena";
@@ -149,7 +162,9 @@ export default function Experience({
             <a className={active === "home" ? "selected" : ""} href="/">
               Discover
             </a>
-            <a href="/play" className={active === "play" ? "selected" : ""}>Play & explore</a>
+            <a href="/play" className={active === "play" ? "selected" : ""}>
+              Play & explore
+            </a>
             <a className={active === "arena" ? "selected" : ""} href="/arena">
               Battle Arena
             </a>
@@ -164,7 +179,13 @@ export default function Experience({
             </a>
           </nav>
           <div className="top-actions">
-            <a href="/notifications" className="icon-button" aria-label="Notifications">♧</a>
+            <a
+              href="/notifications"
+              className="icon-button"
+              aria-label="Notifications"
+            >
+              ♧
+            </a>
             <button
               className="icon-button sound"
               aria-label={sound ? "Mute ambient sound" : "Enable ambient sound"}
@@ -217,7 +238,37 @@ export default function Experience({
               ready={ready}
               tell={setNotice}
             />
-          ) : path.startsWith("/clans") ? (<Clans id={path.split("/")[2]} tell={setNotice}/>) : path.startsWith("/events") ? (<Events id={path.split("/")[2]} tell={setNotice}/>) : path === "/notifications" ? (<Notifications tell={setNotice}/>) : path.startsWith("/challenges/") ? (<FriendChallenge id={path.split("/")[2]} tell={setNotice}/>) : path === "/polls" ? (<Polls tell={setNotice}/>) : path.startsWith("/news") ? (<News id={path.split("/")[2]}/>) : path.startsWith("/combat") ? (<Combat tell={setNotice} initialId={path.split("/")[2]}/>) : path === "/story" ? (<Story tell={setNotice}/>) : path === "/world" ? (<World tell={setNotice}/>) : path.startsWith("/collection") ? (<Collection tell={setNotice} id={path.split("/")[2]}/>) : path === "/play" ? (<PlayHub/>) : path === "/games" ? (<Games tell={setNotice}/>) : path === "/quests" ? (<Quests tell={setNotice}/>) : path === "/leaderboards" ? (<Leaderboards/>) : path.startsWith("/players/") ? (<PlayerPage id={path.split("/")[2]} tell={setNotice}/>) : path === "/profile" ? (
+          ) : path.startsWith("/clans") ? (
+            <Clans id={path.split("/")[2]} tell={setNotice} />
+          ) : path.startsWith("/events") ? (
+            <Events id={path.split("/")[2]} tell={setNotice} />
+          ) : path === "/notifications" ? (
+            <Notifications tell={setNotice} />
+          ) : path.startsWith("/challenges/") ? (
+            <FriendChallenge id={path.split("/")[2]} tell={setNotice} />
+          ) : path === "/polls" ? (
+            <Polls tell={setNotice} />
+          ) : path.startsWith("/news") ? (
+            <News id={path.split("/")[2]} />
+          ) : path.startsWith("/combat") ? (
+            <Combat tell={setNotice} initialId={path.split("/")[2]} />
+          ) : path === "/story" ? (
+            <Story tell={setNotice} />
+          ) : path === "/world" ? (
+            <World tell={setNotice} />
+          ) : path.startsWith("/collection") ? (
+            <Collection tell={setNotice} id={path.split("/")[2]} />
+          ) : path === "/play" ? (
+            <PlayHub />
+          ) : path === "/games" ? (
+            <Games tell={setNotice} />
+          ) : path === "/quests" ? (
+            <Quests tell={setNotice} />
+          ) : path === "/leaderboards" ? (
+            <Leaderboards />
+          ) : path.startsWith("/players/") ? (
+            <PlayerPage id={path.split("/")[2]} tell={setNotice} />
+          ) : path === "/profile" ? (
             <Profile session={session} ready={ready} tell={setNotice} />
           ) : path === "/settings" ? (
             <Preferences session={session} tell={setNotice} />
@@ -243,6 +294,8 @@ export default function Experience({
             <a href="/legacy/index.html">Yoru creators ↗</a>
             <a href="/privacy">Privacy</a>
             <a href="/terms">Terms & safety</a>
+            <a href="/play">All games & world</a>
+            <a href="/news">News & theories</a>
             <a href="/settings">Settings</a>
             {session.admin && <a href="/admin">Moderation</a>}
           </div>

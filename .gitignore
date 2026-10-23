@@ -48,3 +48,6 @@ yarn-error.log*
 playwright-report/
 test-results/
 backups/
+
+dist-data/
+postgres-backups/

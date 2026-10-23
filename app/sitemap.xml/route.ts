@@ -1,7 +1,7 @@
 export function GET() {
   return new Response(
     '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' +
-      ["", "/arena", "/power", "/community", "/privacy", "/terms"]
+      ["", "/arena", "/power", "/community", "/play", "/games", "/quests", "/story", "/combat", "/world", "/clans", "/events", "/collection", "/leaderboards", "/polls", "/news", "/privacy", "/terms"]
         .map(
           (p) =>
             "<url><loc>https://yoru-anime-vishnu.vishnukushwaha63.chatgpt.site" +

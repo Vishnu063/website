@@ -1,0 +1,1 @@
+ALTER TABLE `matches` ADD `replay` integer DEFAULT 0 NOT NULL;

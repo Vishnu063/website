@@ -1,0 +1,56 @@
+# Optional private PostgreSQL API. Used by the Sites Worker through DATA_API_URL.
+# DATA_API_TOKEN must match the Worker setting. This stack intentionally publishes no ports.
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: animeverse
+      POSTGRES_USER: animeverse
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a strong PostgreSQL password}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U animeverse -d animeverse']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+  data-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.data
+    init: true
+    environment:
+      DATABASE_URL: postgres://animeverse:${POSTGRES_PASSWORD}@postgres:5432/animeverse
+      DATA_API_TOKEN: ${DATA_API_TOKEN:?Set at least 32 random characters}
+      SITE_ORIGIN: ${SITE_ORIGIN:?Set the exact existing HTTPS Site origin}
+      ADMIN_USER_IDS: ${ADMIN_USER_IDS:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose: ['3100']
+    stop_grace_period: 30s
+    restart: unless-stopped
+  backup:
+    image: postgres:17-alpine
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-backups:/backups
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint: ['/bin/sh', '-ec']
+    command:
+      - |
+        while true; do
+          backup_name="/backups/animeverse-$$(date -u +%Y%m%dT%H%M%SZ).dump"
+          pg_dump -h postgres -U animeverse -d animeverse -Fc -f "$$backup_name.tmp"
+          mv "$$backup_name.tmp" "$$backup_name"
+          find /backups -name '*.dump' -mtime +14 -delete
+          sleep 86400
+        done
+    restart: unless-stopped
+volumes:
+  postgres-data:
+  postgres-backups:

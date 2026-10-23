@@ -343,9 +343,12 @@ function HeroView({
             <span className="eyebrow">YOUR FIRST STORY PROMPT</span>
             <p>{h.quest}</p>
             <small>
-              A creative prompt to begin your story. Playable story chapters
-              arrive in a later phase.
+              Keep this as a writing prompt, or enter the original Sakura City
+              adventure.
             </small>
+            <a className="inline-link" href="/story">
+              Play the story ↗
+            </a>
           </div>
           <div className="button-row">
             <button

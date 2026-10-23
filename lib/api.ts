@@ -1,4 +1,4 @@
-import { handlePlay } from "./play-api";
+import { handlePlay } from "./play-api.ts";
 import { cleanText, resultFromCode, ValidationError } from "./power.ts";
 export type User = { id: string; name: string };
 export interface Database {
@@ -66,10 +66,14 @@ export async function handleApi(
     return b;
   };
   try {
-    if(p[0] === "play") { const response=await handlePlay(req,ctx,p.slice(1)); status=response.status; return response; }
+    if (p[0] === "play") {
+      const response = await handlePlay(req, ctx, p.slice(1));
+      status = response.status;
+      return response;
+    }
     if (p[0] === "health") {
-      await db.all("SELECT 1");
-      return json({ status: "ok", database: "ready", version: "2.0.0" });
+      await db.all("SELECT 1 FROM game_players LIMIT 1");
+      return json({ status: "ok", database: "ready", version: "3.0.0" });
     }
     if (p[0] === "session" && req.method === "GET")
       return json({ user, admin: !!user && !!ctx.admins?.includes(user.id) });
@@ -152,19 +156,61 @@ export async function handleApi(
       }
       if (req.method === "DELETE") {
         await db.batch([
-          {sql:"UPDATE tournaments SET status='cancelled' WHERE status IN ('active','registration') AND id IN (SELECT tournament FROM matches WHERE left_user=? OR right_user=?)",args:[u.id,u.id]},
-          {sql:"UPDATE matches SET status='withdrawn',winner=NULL WHERE left_user=? OR right_user=?",args:[u.id,u.id]},
-          {sql:'UPDATE matches SET left_user=NULL WHERE left_user=?',args:[u.id]},
-          {sql:'UPDATE matches SET right_user=NULL WHERE right_user=?',args:[u.id]},
-          {sql:'UPDATE tournaments SET winner=NULL WHERE winner=?',args:[u.id]},
-          {sql:'DELETE FROM match_entries WHERE user=?',args:[u.id]},
-          {sql:'DELETE FROM tournament_entries WHERE user=?',args:[u.id]},
-          {sql:'DELETE FROM clan_members WHERE clan IN (SELECT id FROM clans WHERE owner=?)',args:[u.id]},
-          {sql:"UPDATE clans SET archived=1,owner='deleted' WHERE owner=?",args:[u.id]},
-          {sql:'DELETE FROM invitations WHERE sender=? OR target=?',args:[u.id,u.id]},
-          ...['game_events','game_runs','game_players','notifications','clan_members','poll_votes'].map(t=>({sql:`DELETE FROM ${t} WHERE user=?`,args:[u.id]})),
-          {sql:'DELETE FROM poll_votes WHERE poll IN (SELECT id FROM polls WHERE owner=?)',args:[u.id]},
-          {sql:'DELETE FROM polls WHERE owner=?',args:[u.id]},
+          {
+            sql: "UPDATE tournaments SET status='cancelled' WHERE status IN ('active','registration') AND id IN (SELECT tournament FROM matches WHERE left_user=? OR right_user=?)",
+            args: [u.id, u.id],
+          },
+          {
+            sql: "UPDATE matches SET status='withdrawn' WHERE (left_user=? OR right_user=?) AND status IN ('open','draw')",
+            args: [u.id, u.id],
+          },
+          {
+            sql: "UPDATE matches SET winner=NULL WHERE winner=?",
+            args: [u.id],
+          },
+          { sql: "DELETE FROM limits WHERE key=?", args: ["play:" + u.id] },
+          {
+            sql: "UPDATE matches SET left_user=NULL WHERE left_user=?",
+            args: [u.id],
+          },
+          {
+            sql: "UPDATE matches SET right_user=NULL WHERE right_user=?",
+            args: [u.id],
+          },
+          {
+            sql: "UPDATE tournaments SET winner=NULL WHERE winner=?",
+            args: [u.id],
+          },
+          { sql: "DELETE FROM match_entries WHERE user=?", args: [u.id] },
+          { sql: "DELETE FROM tournament_entries WHERE user=?", args: [u.id] },
+          {
+            sql: "DELETE FROM clan_members WHERE clan IN (SELECT id FROM clans WHERE owner=?)",
+            args: [u.id],
+          },
+          {
+            sql: "UPDATE clans SET archived=1,owner='deleted' WHERE owner=?",
+            args: [u.id],
+          },
+          {
+            sql: "DELETE FROM invitations WHERE sender=? OR target=?",
+            args: [u.id, u.id],
+          },
+          ...[
+            "game_events",
+            "game_runs",
+            "game_players",
+            "notifications",
+            "clan_members",
+            "poll_votes",
+          ].map((t) => ({
+            sql: `DELETE FROM ${t} WHERE user=?`,
+            args: [u.id],
+          })),
+          {
+            sql: "DELETE FROM poll_votes WHERE poll IN (SELECT id FROM polls WHERE owner=?)",
+            args: [u.id],
+          },
+          { sql: "DELETE FROM polls WHERE owner=?", args: [u.id] },
           ...["votes", "follows", "comments", "reports"].map((t) => ({
             sql: `DELETE FROM ${t} WHERE user=?`,
             args: [u.id],
@@ -296,7 +342,12 @@ export async function handleApi(
         fail(400, "Invalid report type.");
       const target = cleanText(body.target, 1, 50),
         reason = cleanText(body.reason, 5, 500, "Reason"),
-        table = body.kind === "battle" ? "battles" : body.kind === "poll" ? "polls" : "comments";
+        table =
+          body.kind === "battle"
+            ? "battles"
+            : body.kind === "poll"
+              ? "polls"
+              : "comments";
       if (
         !(
           await db.all(`SELECT 1 FROM ${table} WHERE id=? AND hidden=0`, [
@@ -342,7 +393,7 @@ export async function handleApi(
       if (req.method === "GET")
         return json({
           reports: await db.all(
-            "SELECT r.*,CASE WHEN r.kind='battle' THEN b.title || ': ' || b.scenario WHEN r.kind='poll' THEN po.question ELSE c.body END content,CASE WHEN r.kind='battle' THEN b.id ELSE c.battle END battle FROM reports r LEFT JOIN battles b ON r.kind='battle' AND b.id=r.target LEFT JOIN comments c ON r.kind='comment' AND c.id=r.target LEFT JOIN polls po ON r.kind='poll' AND po.id=r.target WHERE r.status=? ORDER BY r.created ASC LIMIT 100",
+            "SELECT r.*,CASE WHEN r.kind='battle' THEN b.title || ': ' || b.scenario WHEN r.kind='poll' THEN po.question WHEN r.kind='clan' THEN cl.name || ': ' || cl.bio ELSE c.body END content,CASE WHEN r.kind='battle' THEN b.id ELSE c.battle END battle FROM reports r LEFT JOIN battles b ON r.kind='battle' AND b.id=r.target LEFT JOIN comments c ON r.kind='comment' AND c.id=r.target LEFT JOIN polls po ON r.kind='poll' AND po.id=r.target LEFT JOIN clans cl ON r.kind='clan' AND cl.id=r.target WHERE r.status=? ORDER BY r.created ASC LIMIT 100",
             ["open"],
           ),
           audit: await db.all(
@@ -360,7 +411,17 @@ export async function handleApi(
         if (!["hide", "dismiss"].includes(body.action))
           fail(400, "Invalid moderation action.");
         const changes = [];
-        if (body.action === "hide")
+        if (body.action === "hide" && r.kind === "clan") {
+          changes.push(
+            { sql: "UPDATE clans SET archived=1 WHERE id=?", args: [r.target] },
+            { sql: "DELETE FROM clan_members WHERE clan=?", args: [r.target] },
+            {
+              sql: "UPDATE invitations SET status='expired' WHERE kind='clan' AND object=?",
+              args: [r.target],
+            },
+          );
+        }
+        if (body.action === "hide" && r.kind !== "clan")
           changes.push({
             sql: `UPDATE ${r.kind === "battle" ? "battles" : r.kind === "poll" ? "polls" : "comments"} SET hidden=1 WHERE id=?`,
             args: [r.target],

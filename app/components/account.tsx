@@ -1,4 +1,5 @@
 "use client";
+import { AdventureProfile } from "./adventure-profile";
 import { useState, useEffect } from "react";
 import {
   ArrowRight,
@@ -42,6 +43,7 @@ export function Profile({
         >
           Save your hero and follow the debates you care about.
         </Title>
+        <AdventureProfile tell={tell} />
         <AuthNote path="/profile" />
         <a className="btn primary" href="/power">
           Try the power test first
@@ -61,6 +63,7 @@ export function Profile({
         Your saved identity and followed discussions. No invented achievements
         or scores.
       </Title>
+      <AdventureProfile tell={tell} />
       {error && <p role="alert">{error}</p>}
       <div className="profile-grid">
         <section className="panel">
@@ -290,8 +293,10 @@ export function Preferences({
             <h3>Delete ANIMEVERSE account data</h3>
             <p>
               This permanently deletes your profile, saved hero, created battles
-              and their replies, own comments, votes, follows, blocks and
-              reports. Your ChatGPT account is unaffected.
+              and their replies, own comments, votes, follows, blocks, reports,
+              game progress, XP, notifications, poll activity and social
+              memberships. Owned clans are archived and affected active
+              tournaments are cancelled. Your ChatGPT account is unaffected.
             </p>
             <label>
               Type DELETE to confirm
@@ -449,10 +454,13 @@ export function Legal({ privacy }: { privacy: boolean }) {
           <>
             <h2>What the app stores</h2>
             <p>
-              Guest results and accessibility preferences can stay in your
-              browser. Account features store a site-specific account
+              Accessibility preferences stay in your browser. New guest games
+              store progress on the server under a private, HttpOnly, 30-day
+              browser cookie. Account features store a site-specific account
               identifier, chosen public name, saved hero, posts, comments,
-              votes, follows, blocks and reports. Your email is not published.
+              votes, follows, blocks, reports, game attempts, story choices, XP,
+              collection preferences, clan memberships, tournament entries and
+              notifications. Your email is not published.
             </p>
             <h2>Sign-in and hosting</h2>
             <p>
@@ -473,8 +481,10 @@ export function Legal({ privacy }: { privacy: boolean }) {
             <p>
               Delete app account data in Settings. This removes your profile and
               activity, not your ChatGPT account. Clearing browser storage
-              removes local results and settings. Operator backups need a
-              separate retention policy.
+              removes local results and settings; clearing the guest cookie
+              loses access to guest game records. Delete guest progress from the
+              adventure passport before clearing cookies. Operator backups need
+              a separate retention policy.
             </p>
             <h2>Before public launch</h2>
             <p>
