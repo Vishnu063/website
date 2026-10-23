@@ -28,3 +28,7 @@ Historical Phase 1 verification and screenshots remain in the repository and app
 - Formal fixture migrations/new-system coverage, account and fairness validation, strict CSP work, advisory triage, operator retention/cleanup, monitoring, secured production networking and public release approval remain outstanding.
 
 The expansion dependency audit reported eight findings: seven high and one moderate, none critical. These remain review items, primarily in the existing build-tool chain. No claim of dependency cleanliness is made.
+
+## Security and scheduling continuation
+
+Browserslist and fflate receive scoped patched-version overrides. The unpatched braces dependency chain remains reported; no framework downgrade or blanket audit suppression is used. Tournament detail pages automatically open an eligible scheduled bracket, or record insufficient participation without fake matches. Existing manual participant/admin activation remains a compatible fallback. No background scheduler or formal tests were added.

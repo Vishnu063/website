@@ -143,7 +143,9 @@ Read [operations](docs/operations.md) for backups, recovery, rollback and produc
 - No new browser/physical-device QA, two-user checks, load/security review or restore drill performed.
 - PostgreSQL service/DDL/API are compiled code and deployment configuration; runtime migration, data import and production cutover are unverified.
 - Independent AWS frontend hosting still needs a trusted authentication adapter; the current sign-in integration relies on Sites.
-- Tournaments require participant/admin activation after their scheduled start. Reconciliation happens when event pages are requested; no scheduler daemon is provisioned. Exact ties require admin replay. Unfinished brackets close without awarding a fictitious champion.
+- Tournaments open automatically on the first detail-page visit after their scheduled start. Fewer than two entrants produces an explicit insufficient-participation result without a bracket or winner. Reconciliation remains request-driven; no scheduler daemon is provisioned. Exact ties require admin replay. Unfinished brackets close without awarding a fictitious champion.
 - Content is finite: 24 quiz clues, three story chapters, eight district encounters and three illustrated heroes. No live anime-news feed, generated AI companions or 3D assets.
 - Moderation staffing, contact details, retention/guest cleanup jobs, external monitoring, TLS ingress, encrypted off-host backups and public-launch approval remain operator work.
 - CSP still permits framework inline scripts/styles. Remaining dependency advisories must be reviewed before a public launch; full audit findings are not a clean bill of health.
+
+The [security and scheduling continuation](docs/security-review.md) records the current full audit (six high findings), production-only audit (zero findings) and automatically opened tournament brackets. Formal gameplay/security tests remain deferred.

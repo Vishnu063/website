@@ -364,7 +364,7 @@ export function Events({ id, tell }: { id?: string; tell: Tell }) {
                 disabled={busy}
                 onClick={() => action("start")}
               >
-                Open the scheduled bracket
+                Refresh scheduled opening
               </button>
             ) : null}
             <button className="btn glass" disabled={busy} onClick={load}>
@@ -380,11 +380,13 @@ export function Events({ id, tell }: { id?: string; tell: Tell }) {
               </button>
             )}
             <p>
-              {data.event.status === "finished"
-                ? "A champion has earned 150 XP. See the final bracket result below."
-                : data.event.status === "closed"
-                  ? "The time window ended before a complete result. No champion was fabricated."
-                  : "All match results come from saved, server-resolved encounters."}
+              {data.event.status === "insufficient"
+                ? "Fewer than two real players registered before opening. No bracket or winner was created."
+                : data.event.status === "finished"
+                  ? "A champion has earned 150 XP. See the final bracket result below."
+                  : data.event.status === "closed"
+                    ? "The time window ended before a complete result. No champion was fabricated."
+                    : "All match results come from saved, server-resolved encounters."}
             </p>
           </div>
           <h2>Registered players</h2>

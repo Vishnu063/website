@@ -55,6 +55,87 @@ async function event(c: PlayContext, id: string) {
   requireGame(t, 404, "Tournament not found.");
   return t;
 }
+// A scheduled tournament may transition only from registration. Match rows and
+// activation are committed together; a cancelled competition cannot be reseeded.
+async function openScheduled(c: PlayContext, id: string) {
+  const t = await event(c, id);
+  if (t.status !== "registration" || c.now < t.starts) return false;
+  if (c.now >= t.ends) {
+    await c.db.run(
+      "UPDATE tournaments SET status='closed' WHERE id=? AND status='registration'",
+      [id],
+    );
+    return false;
+  }
+  const entries = await c.db.all(
+    "SELECT user FROM tournament_entries WHERE tournament=? ORDER BY slot",
+    [id],
+  );
+  if (entries.length < 2) {
+    await c.db.run(
+      "UPDATE tournaments SET status='insufficient' WHERE id=? AND status='registration' AND (SELECT COUNT(*) FROM tournament_entries WHERE tournament=?)<2",
+      [id, id],
+    );
+    if ((await event(c, id)).status !== "insufficient") return false;
+    for (const entry of entries)
+      await notify(
+        c,
+        entry.user,
+        "tournament",
+        "insufficient:" + id,
+        `${t.name} needs at least two entrants; no result was awarded.`,
+        "/events/" + id,
+      );
+    return false;
+  }
+  const queries = [
+    {
+      sql: "UPDATE tournaments SET status='active' WHERE id=? AND status='registration' AND starts<=? AND ends>? AND (SELECT COUNT(*) FROM tournament_entries WHERE tournament=?)=?",
+      args: [id, c.now, c.now, id, entries.length],
+    },
+  ];
+  for (let i = 0; i < entries.length; i += 2) {
+    const left = entries[i].user,
+      right = entries[i + 1]?.user || null;
+    queries.push({
+      sql: "INSERT INTO matches(id,tournament,round,position,left_user,right_user,winner,status) SELECT ?,?,1,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM tournaments WHERE id=? AND status='active') ON CONFLICT DO NOTHING",
+      args: [
+        `${id}:1:${i / 2}`,
+        id,
+        i / 2,
+        left,
+        right,
+        right ? null : left,
+        right ? "open" : "bye",
+        id,
+      ],
+    });
+  }
+  await c.db.batch(queries);
+  if ((await event(c, id)).status !== "active") return false;
+  // Fetch preferences once for the whole roster to bound the per-request DB work.
+  const players = await c.db.all(
+    `SELECT user,settings FROM game_players WHERE user IN (${entries.map(() => "?").join(",")})`,
+    entries.map((e) => e.user),
+  );
+  const notices = players
+    .filter((p) => {
+      const prefs = JSON.parse(p.settings);
+      return prefs.notifications !== false && prefs.tournament !== false;
+    })
+    .map((p) => ({
+      sql: "INSERT INTO notifications(id,user,kind,title,href,read,created) VALUES(?,?,'tournament',?,?,0,?) ON CONFLICT(id) DO NOTHING",
+      args: [
+        `${p.user}:started:${id}`,
+        p.user,
+        `${t.name} has begun`,
+        "/events/" + id,
+        c.now,
+      ],
+    }));
+  if (notices.length) await c.db.batch(notices);
+  return true;
+}
 async function reconcile(c: PlayContext, id: string) {
   let t = await event(c, id);
   if (t.status !== "active") return;
@@ -543,6 +624,7 @@ export async function socialRouter(c: PlayContext): Promise<any | undefined> {
       return { id };
     }
     const id = text(p[1], 1, 80);
+    if (method === "GET") await openScheduled(c, id);
     await reconcile(c, id);
     let t = await event(c, id);
     if (method === "GET")
@@ -612,8 +694,8 @@ export async function socialRouter(c: PlayContext): Promise<any | undefined> {
         "Registration is closed.",
       );
       await c.db.run(
-        "DELETE FROM tournament_entries WHERE tournament=? AND user=?",
-        [id, c.uid],
+        "DELETE FROM tournament_entries WHERE tournament=? AND user=? AND EXISTS(SELECT 1 FROM tournaments WHERE id=? AND status='registration' AND starts>?)",
+        [id, c.uid, id, c.now],
       );
       return { withdrawn: true };
     }
@@ -633,47 +715,11 @@ export async function socialRouter(c: PlayContext): Promise<any | undefined> {
         400,
         "This tournament cannot start now.",
       );
-      const entries = await c.db.all(
-        "SELECT user FROM tournament_entries WHERE tournament=? ORDER BY slot",
-        [id],
-      );
       requireGame(
-        entries.length >= 2,
+        await openScheduled(c, id),
         400,
-        "At least two real entrants are required.",
+        "At least two real entrants and an active registration window are required.",
       );
-      const q = [
-        {
-          sql: "UPDATE tournaments SET status='active' WHERE id=? AND status='registration'",
-          args: [id],
-        },
-      ];
-      for (let i = 0; i < entries.length; i += 2) {
-        const l = entries[i].user,
-          r = entries[i + 1]?.user || null;
-        q.push({
-          sql: "INSERT INTO matches(id,tournament,round,position,left_user,right_user,winner,status) VALUES(?,?,1,?,?,?,?,?) ON CONFLICT DO NOTHING",
-          args: [
-            `${id}:1:${i / 2}`,
-            id,
-            i / 2,
-            l,
-            r,
-            r ? null : l,
-            r ? "open" : "bye",
-          ],
-        });
-      }
-      await c.db.batch(q);
-      for (const e of entries)
-        await notify(
-          c,
-          e.user,
-          "tournament",
-          "started:" + id,
-          `${t.name} has begun`,
-          "/events/" + id,
-        );
       return { started: true };
     }
     if (p[2] === "cancel") {

@@ -60,7 +60,7 @@ PostgreSQL API: retain the prior immutable image digest, stop writes if required
 
 API logs include request IDs, paths, status, method and duration; private service logs omit sensitive request payloads. Connect a real log/metrics/alerting destination before public launch. Alert on readiness failure, 5xx rate, backup failure and DB storage growth. No monitoring backend or alert route is connected.
 
-Daily/weekly quests use server UTC calculations; synchronize clocks. Tournaments activate through participant/admin requests after the scheduled opening; pages reconcile completed attempts and deadlines. Tied matches need an administrator to authorize replay. A future background scheduler may trigger these same authorized transitions, but none is silently assumed.
+Daily/weekly quests use server UTC calculations; synchronize clocks. Tournament detail-page requests automatically activate an eligible bracket after the scheduled opening; fewer than two entrants closes registration as insufficient participation; pages reconcile completed attempts and deadlines. Tied matches need an administrator to authorize replay. A future background scheduler may trigger these same authorized transitions, but none is silently assumed.
 
 Guest cookies expire after 30 days. Define and communicate retention, then schedule deletion of orphaned guest records older than the retention window, old practice attempts and expired rate-limit buckets. Preserve account story history and required audits according to the approved policy. No cleanup job has been silently installed.
 
