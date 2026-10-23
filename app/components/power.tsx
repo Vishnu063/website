@@ -61,7 +61,7 @@ export function Power({ session, tell }: { session: Session; tell: Tell }) {
         eyebrow="THE ANIME POWER TEST"
         title="Every legend starts with a choice."
       >
-        Five questions. No right answers. A little more you.
+        Five questions. No timer. No signup. Your identity, then your first adventure.
       </Title>
       <div className="quiz-layout">
         <div className="quiz-art">
@@ -91,7 +91,7 @@ export function Power({ session, tell }: { session: Session; tell: Tell }) {
             </span>
             <span>{step * 20}%</span>
           </div>
-          <div className="progress">
+          <div className="progress" role="progressbar" aria-label="Power test progress" aria-valuemin={0} aria-valuemax={5} aria-valuenow={step}>
             <i style={{ width: `${step * 20}%` }} />
           </div>
           <h2 ref={heading} tabIndex={-1}>
@@ -289,6 +289,10 @@ function HeroView({
         An original identity shaped by your choices. Your story is still
         unwritten.
       </Title>
+      <section className="next-chapter" aria-label="Next adventure">
+        <div><span className="eyebrow">YOUR IDENTITY IS ONLY THE BEGINNING</span><h2>Ready to meet your rival?</h2><p>Train with {h.art === "akira" ? "Akira" : h.art === "luna" ? "Luna" : "Ren"}, your suggested original hero. Read the rival’s next move, then strike, guard or focus.</p><small>Your power card is a creative identity. Training uses the hero’s balanced combat abilities.</small></div>
+        <a className="btn primary" href={`/combat?hero=${h.art}`} onClick={() => event("hero_to_combat")}>Play my first battle <Swords size={17}/></a>
+      </section>
       <div className="result-layout">
         <article
           className="hero-card"
@@ -352,7 +356,7 @@ function HeroView({
           </div>
           <div className="button-row">
             <button
-              className="btn primary"
+              className="btn secondary"
               disabled={busy || !name.trim()}
               onClick={download}
             >

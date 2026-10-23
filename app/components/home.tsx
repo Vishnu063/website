@@ -8,24 +8,34 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { origins } from "../../lib/power";
-import { art, event } from "./core";
+import { art, event, type Session } from "./core";
+import { FirstAdventure } from "./journey";
 import { useState, type CSSProperties } from "react";
 const portraits = [
-  { name: "Akira", art: "akira", title: "The light that stays.", faction: "Dawn Wardens", power: "Solar flame", description: "A quiet courage. A spark that refuses to go out.", code: "00000" },
-  { name: "Luna", art: "luna", title: "A little mystery. All you.", faction: "Celestial Archive", power: "Lunar illusions", description: "For the dreamers who see a different kind of possibility.", code: "11111" },
-  { name: "Ren", art: "ren", title: "Born to find another way.", faction: "Skyline Runners", power: "Kinetic lightning", description: "A restless spirit, with the whole skyline ahead.", code: "22222" },
+  { name: "Akira", art: "akira", title: "The light that stays.", faction: "Dawn Wardens", power: "Solar flame", description: "He keeps Sakura City’s last lantern burning. Protecting everyone can mean forgetting himself.", code: "00000" },
+  { name: "Luna", art: "luna", title: "A little mystery. All you.", faction: "Celestial Archive", power: "Lunar illusions", description: "She studies the stars that disappeared. Some answers are harder to live with than mysteries.", code: "11111" },
+  { name: "Ren", art: "ren", title: "Born to find another way.", faction: "Skyline Runners", power: "Kinetic lightning", description: "A courier on the city’s silent rooftops. He knows a hidden route, but trust has to be earned.", code: "22222" },
 ];
-export default function Home() {
+export default function Home({ session, ready }: { session: Session; ready: boolean }) {
   const [selected, setSelected] = useState(0);
   const portrait = portraits[selected];
   return (
     <>
       <section className="identity-intro">
         <div>
-          <div className="eyebrow">YOUR WORLD. YOUR AFTER HOURS.</div>
-          <h1>An identity worth<br /><em>making your own.</em></h1>
-          <p>Beautiful original portraits. Your name, your mood, your story.<br />Leave with something you can actually call your own.</p>
+          <div className="eyebrow">WHAT IF YOU WERE BORN INSIDE AN ANIME?</div>
+          <h1>Discover your power.<br /><em>Make the story yours.</em></h1>
+          <p>Five choices reveal your original anime identity.<br />Meet your rival, then follow a lantern into Sakura City.</p>
         </div>
+        <div className="intro-start">
+          <a href="/power" className="btn primary" onClick={() => event("power_start")}>Discover my power <ArrowRight size={18}/></a>
+          <small>Five questions · No signup · No timer</small>
+          <a href="/games" className="inline-link">Just here to play? Try a quiz <ArrowRight size={15}/></a>
+        </div>
+      </section>
+      <div className="home-journey"><FirstAdventure session={session} ready={ready}/></div>
+      <section className="identity-gallery-intro">
+        <div><span className="eyebrow">MEET THE PEOPLE IN YOUR STORY</span><h2>Every hero has a reason to stay.</h2><p>Choose a portrait to meet Akira, Luna or Ren. Your power result is yours to discover.</p></div>
         <button className="surprise-choice" onClick={() => setSelected((selected + 1 + Math.floor(Math.random() * 2)) % portraits.length)}>
           <span><Sparkles size={18} /> Surprise me</span>
           <small>A different face. A different beginning.</small>
@@ -33,11 +43,7 @@ export default function Home() {
       </section>
       <section className="identity-workspace" aria-label="Find your original anime character">
         <div className="identity-flow">
-          <ol className="identity-steps">
-            <li><i>01</i><span>Choose<small>Your starting point</small></span></li>
-            <li><i>02</i><span>Personalize<small>Make the story yours</small></span></li>
-            <li><i>03</i><span>Take it with you<small>Save a shareable card</small></span></li>
-          </ol>
+
           <div className="eyebrow">A PORTRAIT, FULL OF POSSIBILITY</div>
           <h2>Who feels like you?</h2>
           <div className="identity-choices" role="group" aria-label="Original portraits">
@@ -53,7 +59,7 @@ export default function Home() {
             <p>{portrait.description}</p>
           </div>
           <div className="identity-actions">
-            <a href={`/hero/${portrait.code}`} className="btn primary">Make this my identity <ArrowUpRight size={17} /></a>
+            <a href={`/hero/${portrait.code}`} className="btn secondary">Personalize this portrait <ArrowUpRight size={17} /></a>
             <a href="/power" className="inline-link" onClick={() => event("power_start")}>Discover my power <ArrowRight size={16} /></a>
           </div>
           <a className="identity-studio-link" href="/legacy/portraits.html">Want more? Open the full portrait studio ↗</a>
@@ -68,14 +74,14 @@ export default function Home() {
         </div>
       </section>
       <section className="section" id="choose">
-        <a className="btn primary" href="/play">Enter the play universe <ArrowRight size={17}/></a>
+
         <div className="section-heading">
           <div>
             <div className="eyebrow">
               NO WRONG DOOR. JUST DIFFERENT ADVENTURES.
             </div>
             <h2>
-              What’s your next move<span>?</span>
+              A little more adventure<span>.</span>
             </h2>
           </div>
           <span className="subtle">
@@ -83,23 +89,23 @@ export default function Home() {
           </span>
         </div>
         <div className="activity-grid">
-          <a className="activity power-activity" href="/power">
+          <a className="activity power-activity" href="/games">
             <div className="activity-icon">
               <Sparkles />
             </div>
-            <span className="tag">THE PERFECT PLACE TO START</span>
+            <span className="tag">FIVE CLUES. ONE QUICK CHALLENGE.</span>
             <h3>
-              What’s your
+              Think you know
               <br />
-              anime power?
+              your anime?
             </h3>
             <p>
-              Five choices. Your hero, faction, strength…
+              Text clues, emojis and daily trivia.
               <br />
-              and the rival you never saw coming.
+              Choose your pace. Learn something new.
             </p>
             <div className="activity-bottom">
-              <span>2 MIN · NO SIGNUP</span>
+              <span>FIVE CLUES · NO SIGNUP</span>
               <ArrowUpRight />
             </div>
             <span className="orbit" aria-hidden="true">
@@ -205,7 +211,7 @@ export default function Home() {
             Bring a friend into a debate that’s worth having.
           </p>
           <a href="/power" className="btn primary">
-            Begin my story <ArrowRight size={18} />
+            Discover my power <ArrowRight size={18} />
           </a>
         </div>
         <div className="chapter-card">
@@ -218,9 +224,9 @@ export default function Home() {
           <p>
             Something is waiting beneath the cherry blossoms.
             <br />
-            Discover your power to receive your story prompt.
+            Your first choice changes who will trust you.
           </p>
-          <span>ORIGINAL UNIVERSE · STORY SEED</span>
+          <span>ORIGINAL UNIVERSE · THREE PLAYABLE CHAPTERS</span>
         </div>
       </section>
     </>

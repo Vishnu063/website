@@ -2,7 +2,7 @@
 
 **Come for a battle. Find your identity. Leave a promise in Sakura City.**
 
-ANIMEVERSE extends the existing Yoru portrait experience into a 2D anime entertainment platform. The original homepage, power cards, discussion arena and eleven legacy pages are preserved. No 3D work is included.
+ANIMEVERSE extends the existing Yoru portrait experience into a 2D anime entertainment platform. The original portrait selector, power cards, discussion arena and eleven legacy pages are preserved. No 3D work is included.
 
 [Owner-private website](https://yoru-anime-vishnu.vishnukushwaha63.chatgpt.site) · [Expansion plan](docs/expansion-plan.md) · [Implementation status](docs/expansion-status.md) · [Operations](docs/operations.md)
 
@@ -12,12 +12,22 @@ The expansion is implemented in code and compiled. **Formal tests, Playwright, t
 
 The existing Site remains owner-private. No public launch, DNS changes, AWS provisioning, paid services or PostgreSQL data cutover are performed.
 
+## First-adventure polish · 3.1.0
+
+The homepage now leads with **Discover my power**, followed by a three-step guide: identity → training battle → Sakura City story. The existing portrait workspace remains available below that journey. Power results suggest one of the three balanced training heroes; the power identity does not secretly alter combat stats. Battle results offer a direct story handoff, with replay and quests still available.
+
+The guide reads actual battle/chapter completion through the authenticated or guest-scoped `/api/play/journey` endpoint. Identity is read from this browser’s saved selection or the signed-in profile; it is not an XP achievement. It can resume an unfinished training battle and shows a retry state when progress cannot load. No schema change or new reward is introduced.
+
+Four prominent play links replace thirteen simultaneous tabs. All remaining sections are available in **More to explore** and the full play directory. Mobile navigation adds Escape dismissal, outside-click dismissal, a labelled disclosure and larger link targets. Original character descriptions now connect portraits with the story.
+
+This pass received TypeScript and production build checks. Browser preview was attempted but blocked by the environment; no rendered desktop/mobile approval, new screenshots, gameplay walkthrough, formal tests or Playwright run is claimed. Existing dependency/security limitations remain applicable.
+
 ## Available experiences
 
 | Page | Functionality implemented |
 | --- | --- |
-| `/` | Existing portrait-studio home, selectable original characters and power-test entry |
-| `/play` | Clear entry point to games, world, social features and progression |
+| `/` | Focused power-test entry, saved first-adventure guide and preserved selectable original portraits |
+| `/play` | Personalized adventure guide, compact navigation and access to all existing games/social pages |
 | `/arena`, `/battle/[id]` | Account-backed fan debates, conditions, votes, replies, follows, reports and share links |
 | `/games` | Anime, character, emoji and trivia modes; 24 original text clues; five-question daily rounds, hints, timed scoring, three difficulty levels, explanations and resumable history |
 | `/power`, `/hero/[code]` | Deterministic identity, faction, rival and personalizable downloadable character card; dynamic social preview |

@@ -11,7 +11,8 @@ import {
   routes,
 } from "./play-common";
 import { quizModes, difficulties } from "../../lib/game-content";
-import { art, type Tell } from "./core";
+import { FirstAdventure } from "./journey";
+import { art, type Session, type Tell } from "./core";
 import { collections } from "../../lib/adventure-content";
 const labels = {
   anime: "Guess the anime",
@@ -19,25 +20,12 @@ const labels = {
   emoji: "Emoji challenge",
   trivia: "Daily trivia",
 };
-export function PlayHub() {
+export function PlayHub({ session, ready }: { session: Session; ready: boolean }) {
   return (
     <PlayPage title="What happens next is up to you.">
       <ProgressStrip />
-      <div className="play-hero">
-        <span>PLAY FIRST. FIND YOUR PEOPLE.</span>
-        <h2>
-          A little mystery.
-          <br />
-          <em>A world of possibility.</em>
-        </h2>
-        <p>
-          Try a quiz, meet your rival or follow a lantern into Sakura City. No
-          account needed to begin.
-        </p>
-        <a className="btn primary" href="/games">
-          Play today’s clues <ArrowRight size={17} />
-        </a>
-      </div>
+      <FirstAdventure session={session} ready={ready}/>
+      <div className="section-heading"><div><span className="eyebrow">FOLLOW YOUR CURIOSITY</span><h2>Find your next adventure.</h2></div><a className="inline-link" href="/arena">Fan debate arena <ArrowRight size={16}/></a></div>
       <div className="play-grid">
         {routes.map(([href, name, description], i) => (
           <a className="play-tile" key={href} href={href}>

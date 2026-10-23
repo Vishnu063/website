@@ -20,6 +20,7 @@ import {
   VolumeX,
   UserRound,
   Menu,
+  Bell,
   X,
 } from "lucide-react";
 import {
@@ -47,6 +48,16 @@ export default function Experience({
     [menu, setMenu] = useState(false),
     [sound, setSound] = useState(false);
   const audio = useRef<AudioContext | null>(null);
+  const header = useRef<HTMLElement>(null);
+  const menuButton = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!menu) return;
+    const dismiss = (e: PointerEvent) => { if (!header.current?.contains(e.target as Node)) setMenu(false); };
+    const escape = (e: KeyboardEvent) => { if (e.key === "Escape") { setMenu(false); menuButton.current?.focus(); } };
+    document.addEventListener("pointerdown", dismiss);
+    document.addEventListener("keydown", escape);
+    return () => { document.removeEventListener("pointerdown", dismiss); document.removeEventListener("keydown", escape); };
+  }, [menu]);
   useEffect(() => {
     api("session")
       .then(setSession)
@@ -150,7 +161,7 @@ export default function Experience({
         </a>
       </aside>
       <div className="shell">
-        <header className="topbar">
+        <header className="topbar" ref={header}>
           <a className="wordmark" href="/">
             ANIME<span>VERSE</span>
             <small>あなたの物語</small>
@@ -158,15 +169,14 @@ export default function Experience({
           <nav
             className={menu ? "nav open" : "nav"}
             aria-label="Main navigation"
+            id="main-navigation"
+            onClick={(e) => { if ((e.target as HTMLElement).closest("a")) setMenu(false); }}
           >
             <a className={active === "home" ? "selected" : ""} href="/">
               Discover
             </a>
             <a href="/play" className={active === "play" ? "selected" : ""}>
               Play & explore
-            </a>
-            <a className={active === "arena" ? "selected" : ""} href="/arena">
-              Battle Arena
             </a>
             <a className={active === "power" ? "selected" : ""} href="/power">
               Power Test <i>PLAY</i>
@@ -184,7 +194,7 @@ export default function Experience({
               className="icon-button"
               aria-label="Notifications"
             >
-              ♧
+              <Bell size={18}/>
             </a>
             <button
               className="icon-button sound"
@@ -204,7 +214,9 @@ export default function Experience({
             </a>
             <button
               className="mobile-menu icon-button"
-              aria-label="Toggle menu"
+              ref={menuButton}
+              aria-label={menu ? "Close navigation" : "Open navigation"}
+              aria-controls="main-navigation"
               aria-expanded={menu}
               onClick={() => setMenu(!menu)}
             >
@@ -214,7 +226,7 @@ export default function Experience({
         </header>
         <main id="main">
           {path === "/" ? (
-            <Home />
+            <Home session={session} ready={ready} />
           ) : path === "/power" ? (
             <Power session={session} tell={setNotice} />
           ) : path.startsWith("/hero/") ? (
@@ -259,7 +271,7 @@ export default function Experience({
           ) : path.startsWith("/collection") ? (
             <Collection tell={setNotice} id={path.split("/")[2]} />
           ) : path === "/play" ? (
-            <PlayHub />
+            <PlayHub session={session} ready={ready} />
           ) : path === "/games" ? (
             <Games tell={setNotice} />
           ) : path === "/quests" ? (

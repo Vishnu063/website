@@ -72,15 +72,18 @@ export const routes = [
   ],
 ] as const;
 export function PlayNav() {
-  return (
-    <nav className="play-tabs" aria-label="Play navigation">
-      {routes.map(([href, name]) => (
-        <a href={href} key={href}>
-          {name}
-        </a>
-      ))}
-    </nav>
-  );
+  const [path, setPath] = useState("");
+  useEffect(() => { setPath(location.pathname); }, []);
+  const main = [["/play", "All adventures"], ["/games", "Quick quiz"], ["/combat", "Battle"], ["/story", "Story"]];
+  const extra = routes.filter(([href]) => !main.some(([url]) => url === href));
+  const isActive = (href: string) => path === href || (href !== "/play" && path.startsWith(href + "/"));
+  return <nav className="play-navigation" aria-label="Play navigation">
+    <div className="play-tabs">{main.map(([href, name]) => <a href={href} key={href} aria-current={isActive(href) ? "page" : undefined}>{name}</a>)}</div>
+    <details className="play-more">
+      <summary>More to explore{extra.some(([href]) => isActive(href)) ? " · " + extra.find(([href]) => isActive(href))?.[1] : ""}</summary>
+      <div>{extra.map(([href, name]) => <a href={href} key={href} aria-current={isActive(href) ? "page" : undefined}>{name}</a>)}</div>
+    </details>
+  </nav>;
 }
 export function PlayPage({
   title,

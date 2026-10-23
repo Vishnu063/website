@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     template: "%s · ANIMEVERSE",
   },
   description:
-    "Discover your original anime power. Create a hero, start a battle debate and find your people. Free guest power test.",
+    "Discover your original anime power, meet your first rival and shape Sakura City’s story. Start playing without an account.",
   alternates: { canonical: "/" },
   robots: { index: false, follow: false },
   icons: { icon: "/legacy/assets/favicon.svg" },

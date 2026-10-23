@@ -233,6 +233,15 @@ async function router(c: PlayContext, url: URL): Promise<any> {
     return adventure;
   }
   if (p[0] === "progress" && method === "GET") return progress(c);
+  if (p[0] === "journey" && method === "GET") {
+    const milestones = await one(c,
+      "SELECT SUM(CASE WHEN kind='combat' AND complete=1 THEN 1 ELSE 0 END) combat, SUM(CASE WHEN kind='story' AND complete=1 THEN 1 ELSE 0 END) chapters FROM game_runs WHERE user=?",
+      [c.uid]);
+    const pending = await one(c,
+      "SELECT id FROM game_runs WHERE user=? AND kind='combat' AND complete=0 AND slot IS NULL ORDER BY updated DESC LIMIT 1",
+      [c.uid]);
+    return { combat: Number(milestones?.combat || 0) > 0, chapters: Number(milestones?.chapters || 0), resume: pending?.id || null };
+  }
   if (p[0] === "history" && method === "GET")
     return {
       runs: await c.db.all(

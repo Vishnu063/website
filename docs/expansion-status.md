@@ -32,3 +32,9 @@ The expansion dependency audit reported eight findings: seven high and one moder
 ## Security and scheduling continuation
 
 Browserslist and fflate receive scoped patched-version overrides. The unpatched braces dependency chain remains reported; no framework downgrade or blanket audit suppression is used. Tournament detail pages automatically open an eligible scheduled bracket, or record insufficient participation without fake matches. Existing manual participant/admin activation remains a compatible fallback. No background scheduler or formal tests were added.
+
+## First-adventure polish · 3.1.0
+
+Focused the homepage around the power test while retaining the portrait workspace. Added an account/guest-scoped journey summary using actual completed battles and chapters, browser/profile identity recall, unfinished training encounter links and a visible retry state. Connected hero results to a suggested balanced fighter and combat results to the original story. Added beginner combat instructions, compact play navigation with all features retained under a disclosure, and keyboard/outside dismissal for mobile navigation. No DB migration, fabricated activity or additional reward mechanism.
+
+Compilation/build checks are recorded separately from gameplay verification. Internal browser preview was attempted but blocked by the browser environment; no new desktop/mobile screenshots or rendered approval were obtained. Formal testing remains deferred.

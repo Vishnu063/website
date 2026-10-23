@@ -73,7 +73,7 @@ export async function handleApi(
     }
     if (p[0] === "health") {
       await db.all("SELECT 1 FROM game_players LIMIT 1");
-      return json({ status: "ok", database: "ready", version: "3.0.1" });
+      return json({ status: "ok", database: "ready", version: "3.1.0" });
     }
     if (p[0] === "session" && req.method === "GET")
       return json({ user, admin: !!user && !!ctx.admins?.includes(user.id) });

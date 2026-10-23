@@ -10,7 +10,8 @@ import {
   useAction,
   LoadState,
 } from "./play-common";
-import { art, type Tell } from "./core";
+import { resultFromCode } from "../../lib/power";
+import { art, event, type Tell } from "./core";
 export function Combat({
   tell,
   initialId,
@@ -22,6 +23,14 @@ export function Combat({
     [run, setRun] = useState<any>(null),
     { busy, act } = useAction(tell),
     history = usePlay("history");
+  useEffect(() => {
+    try {
+      const requested = new URLSearchParams(location.search).get("hero");
+      const saved = JSON.parse(localStorage.getItem("av-guest-hero") || "null");
+      const suggested = requested || (saved && resultFromCode(saved.code).art);
+      if (fighters.some(f => f.id === suggested)) setHero(suggested);
+    } catch {}
+  }, []);
   useEffect(() => {
     if (initialId)
       playApi("combat/" + initialId)
@@ -51,6 +60,7 @@ export function Combat({
             spend four energy on your signature move. Your first win with each
             hero per UTC day earns XP and ranked points.
           </p>
+          <div className="battle-basics" aria-label="How to play"><div><Shield size={20}/><b>Read their intent</b><span>Guard when a special attack is coming.</span></div><div><Swords size={20}/><b>Choose your move</b><span>Strike builds energy. Special costs four.</span></div><div><Zap size={20}/><b>Take your time</b><span>Focus restores energy and a little health. No timer.</span></div></div>
           <div className="fighter-select">
             {fighters.map((f) => (
               <button
@@ -143,12 +153,11 @@ export function Combat({
                     ? `${run.score} battle points. Your first win with this hero today qualifies for rewards.`
                     : "Try guarding the special attack or using Focus to recover energy. Losing does not remove XP."}
                 </p>
-                <button className="btn primary" onClick={() => setRun(null)}>
-                  Choose my next encounter
-                </button>
-                <a className="btn glass" href="/quests">
-                  My quests
-                </a>
+                <div className="next-chapter battle-next">
+                  <div><span className="eyebrow">NEXT: A CHOICE THAT STAYS WITH YOU</span><h3>The city has lost its dawn.</h3><p>Akira keeps the last lantern burning. Ren knows a way across the silent rooftops. Who will you trust?</p></div>
+                  <a className="btn primary" href="/story" onClick={() => event("combat_to_story")}>Enter Sakura City <ArrowRight size={17}/></a>
+                </div>
+                <div className="button-row"><button className="btn secondary" onClick={() => setRun(null)}>Try another battle</button><a className="inline-link" href="/quests">See my quest progress <ArrowRight size={16}/></a></div>
               </>
             ) : (
               <>
