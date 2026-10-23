@@ -36,3 +36,7 @@ GitHub run 39916268777 built the Docker image successfully, then identified an E
 ## Reference design refinement
 
 The recent user screenshot shows the original Yoru portrait studio. The home now follows that direction with a charcoal surface, warm rose accents, editorial typography, three original character choices and an interactive full portrait preview. The existing quiz and community features remain available; this is entirely 2D. The shared ChatGPT URL itself could not be fetched, so the screenshot is the design source.
+
+The portrait update passed the 21 local tests, legacy page checks and production build. Browser QA verified desktop portrait changes, the Surprise me action, the 390 × 844 mobile menu and portrait selection, and navigation from Ren to the matching editable Storm Courier card. Actual desktop and mobile screenshots are committed in README. Sites deployment `appgdep_6adb1072384c8191b11122fa3165ca74` succeeded from source `f0d1652a32baebe2749e5180d7b6cded3e018e62`; GitHub commit `ca9147794ad7d8f73ca799c2290528df3fbd56c2` has the identical tree.
+
+GitHub Actions run 39919788715 completed successfully for the portrait update: checks, production audit, build, Docker image, Compose startup, real database readiness and all eight desktop/mobile Playwright tests. A service-authenticated request to the updated live `/api/health` returned HTTP 200 and `database: ready`.

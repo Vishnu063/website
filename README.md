@@ -82,7 +82,7 @@ curl --fail http://localhost:8080/api/health
 docker compose logs -f app
 ```
 
-Pending local migrations apply on startup. Named `app-data` and `app-backups` volumes persist state. Nginx strips identity headers, so the lab is guest-only. Account features use hosted Sites authentication. `wrangler dev` emulates Workers/D1 here; do not expose it as a public production server. Docker was unavailable in the authoring environment; do not assume this configuration passed a Docker test.
+Pending local migrations apply on startup. Named `app-data` and `app-backups` volumes persist state. Nginx strips identity headers, so the lab is guest-only. Account features use hosted Sites authentication. `wrangler dev` emulates Workers/D1 here; do not expose it as a public production server. Docker was unavailable locally; GitHub Actions run 39916744009 independently passed the image build, Compose startup, database readiness and six desktop/mobile Playwright tests.
 
 ## Environment variables
 
