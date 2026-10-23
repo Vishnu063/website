@@ -1,4 +1,5 @@
 "use client";
+import { Combat, Story, World, Collection } from "./components/adventures";
 import { useEffect, useState, useRef } from "react";
 import {
   Compass,
@@ -214,7 +215,7 @@ export default function Experience({
               ready={ready}
               tell={setNotice}
             />
-          ) : path === "/play" ? (<PlayHub/>) : path === "/games" ? (<Games tell={setNotice}/>) : path === "/quests" ? (<Quests tell={setNotice}/>) : path === "/leaderboards" ? (<Leaderboards/>) : path.startsWith("/players/") ? (<PlayerPage id={path.split("/")[2]}/>) : path === "/profile" ? (
+          ) : path === "/combat" ? (<Combat tell={setNotice}/>) : path === "/story" ? (<Story tell={setNotice}/>) : path === "/world" ? (<World tell={setNotice}/>) : path.startsWith("/collection") ? (<Collection tell={setNotice} id={path.split("/")[2]}/>) : path === "/play" ? (<PlayHub/>) : path === "/games" ? (<Games tell={setNotice}/>) : path === "/quests" ? (<Quests tell={setNotice}/>) : path === "/leaderboards" ? (<Leaderboards/>) : path.startsWith("/players/") ? (<PlayerPage id={path.split("/")[2]}/>) : path === "/profile" ? (
             <Profile session={session} ready={ready} tell={setNotice} />
           ) : path === "/settings" ? (
             <Preferences session={session} tell={setNotice} />

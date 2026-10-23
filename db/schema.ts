@@ -4,6 +4,7 @@ import {
   integer,
   primaryKey,
   index,
+  uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 export const profiles = sqliteTable("profiles", {
   id: text("id").primaryKey(),
@@ -95,10 +96,10 @@ export const gamePlayers = sqliteTable("game_players", {
 });
 export const gameRuns = sqliteTable("game_runs", {
   id: text("id").primaryKey(), user: text("user").notNull(), kind: text("kind").notNull(),
-  state: text("state").notNull(), version: integer("version").notNull().default(0),
+  slot: text("slot"), state: text("state").notNull(), version: integer("version").notNull().default(0),
   score: integer("score").notNull().default(0), complete: integer("complete").notNull().default(0),
   created: integer("created").notNull(), updated: integer("updated").notNull(),
-}, t => [index("runs_owner").on(t.user,t.kind,t.updated)]);
+}, t => [index("runs_owner").on(t.user,t.kind,t.updated),uniqueIndex("runs_slot").on(t.user,t.kind,t.slot)]);
 export const gameEvents = sqliteTable("game_events", {
   id: text("id").primaryKey(), user: text("user").notNull(), kind: text("kind").notNull(),
   source: text("source").notNull(), xp: integer("xp").notNull(), score: integer("score").notNull().default(0),

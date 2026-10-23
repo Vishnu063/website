@@ -2110,3 +2110,54 @@ progress::-webkit-progress-value { background:var(--lime); transition:width .3s;
 .play-page .btn { margin:6px 9px 6px 0; }
 @media(max-width:640px) { .play-page { padding:30px 5%; } .play-panel,.play-tile { padding:22px; } .play-tabs { margin-right:-5%; } .progress-strip small { width:100%; } }
 @media(prefers-reduced-motion:reduce) { progress::-webkit-progress-value { transition:none; } }
+.fighter-select,.collection-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px; margin:25px 0; }
+.fighter { padding:0; text-align:left; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--panel); }
+.fighter.selected { border-color:var(--lime); box-shadow:0 0 0 1px #e9c3b144; }
+.fighter img { width:100%; height:290px; object-fit:cover; object-position:50% 20%; }
+.fighter > div { padding:22px; }
+.fighter h2 { font-family:Georgia,serif; }
+.fighter p,.fighter span { font-size:12px; }
+.combat-stage { border:1px solid var(--line); background:#14212a; border-radius:9px; overflow:hidden; }
+.combat-fighters { display:grid; grid-template-columns:1fr auto 1fr; gap:20px; align-items:center; padding:25px; }
+.combatant { position:relative; height:360px; overflow:hidden; border-radius:7px; background:#10191f; }
+.combatant > img { height:100%; width:100%; object-fit:cover; object-position:50% 22%; }
+.combatant.rival > img { filter:saturate(.35) hue-rotate(25deg); transform:scaleX(-1); }
+.combatant > div { position:absolute; inset:auto 0 0; padding:45px 20px 20px; background:linear-gradient(transparent,#0b131bf5 35%); }
+.combatant h2 { font-family:Georgia,serif; font-size:26px; margin:8px 0; }
+.combatant span,.combatant small { display:block; font-size:11px; margin-top:5px; }
+.versus { color:var(--lime); font:italic 26px Georgia,serif; }
+.combat-console { padding:30px; }
+.combat-console h2 { font-weight:400; }
+.combat-console em { color:var(--lime); }
+.combat-actions { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+.combat-actions > button { border:1px solid #736250; border-radius:6px; padding:18px 12px; background:#e9c3b108; }
+.combat-actions svg { display:block; margin:0 auto 10px; color:var(--lime); }
+.combat-actions small { display:block; margin-top:9px; font-size:10px; }
+.combat-log { margin-top:25px; min-height:85px; border-left:2px solid var(--lime); padding-left:18px; }
+.combat-log p { font-size:13px; margin:7px 0; }
+.story-stage { display:grid; grid-template-columns:.85fr 1.15fr; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:#15222b; }
+.story-stage > img { width:100%; height:100%; min-height:570px; object-fit:cover; object-position:50% 20%; }
+.dialogue { padding:clamp(22px,4vw,45px); }
+.dialogue h2 { font:36px/1.25 Georgia,serif; margin:25px 0; }
+.dialogue > p { font-size:16px; line-height:1.9; }
+.world-map { position:relative; border:1px solid var(--line); border-radius:12px; max-width:850px; margin:25px auto; overflow:hidden; }
+.world-map > svg { width:100%; display:block; }
+.map-node { position:absolute; transform:translate(-50%,-50%); color:#eedbc8; display:grid; justify-items:center; gap:6px; padding:8px; max-width:24%; }
+.map-node > span { font-size:26px; line-height:1; text-shadow:0 0 15px #e9c3b1; }
+.map-node b { font-size:10px; font-weight:400; background:#111c24dd; border:1px solid #ffffff22; padding:5px 8px; border-radius:3px; }
+.map-node.selected b { border-color:var(--lime); }
+.map-node.locked { color:#92a1ae; }
+.location-panel { display:grid; grid-template-columns:220px 1fr; border:1px solid var(--line); background:var(--panel); border-radius:8px; overflow:hidden; }
+.location-panel > img { height:100%; min-height:330px; width:100%; object-fit:cover; object-position:50% 20%; }
+.location-panel > div { padding:30px; }
+.npc-dialogue { margin:25px 0 0; padding-top:20px; border-top:1px solid var(--line); }
+.npc-dialogue span { font-size:12px; color:var(--lime); }
+.collection-card { border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--panel); }
+.collection-card img { width:100%; aspect-ratio:4/5; object-fit:cover; object-position:50% 20%; }
+.collection-card > div { padding:24px; }
+.collection-card h2 { font:25px Georgia,serif; margin:15px 0; }
+.collection-card p { font-size:12px; }
+.collection-card.is-locked img { filter:grayscale(.8) brightness(.65); }
+.edition-ember-frame { border-color:#de9471; }.edition-moon-frame {border-color:#c3b1ff;}.edition-storm-frame{border-color:#71e5de;}.edition-dawn-legend{border:2px solid #e3c476;}
+@media(max-width:760px){.fighter-select,.collection-grid{grid-template-columns:1fr 1fr;}.fighter img{height:220px;}.story-stage{grid-template-columns:1fr;}.story-stage>img{height:290px;min-height:0;}.location-panel{grid-template-columns:1fr;}.location-panel>img{height:240px;min-height:0;}.combat-actions{grid-template-columns:1fr 1fr;}.combatant{height:260px;}.combat-fighters{padding:12px;gap:9px;}.combatant>div{padding:35px 10px 15px;}.combatant h2{font-size:21px;}.versus{font-size:18px;}.map-node b{font-size:8px;padding:4px;}}
+@media(max-width:430px){.fighter-select,.collection-grid{grid-template-columns:1fr;}.fighter{display:grid;grid-template-columns:.85fr 1.15fr;}.fighter img{height:100%;min-height:240px;}.fighter>div{padding:17px;}.combat-console{padding:22px;}.map-node>span{font-size:22px;}.map-node b{font-size:7px;}.collection-card img{aspect-ratio:4/4.5;}}

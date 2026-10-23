@@ -1,14 +1,15 @@
+import { adventureRouter } from "./adventure-api";
 import type { Database, User } from './api';
 import { quizBank,quizModes,difficulties,hash,dayKey,weekKey,missions,achievements } from './game-content';
 import { GameError,requireGame,one,newRun,runById,changeRun,award,notify,type PlayContext } from './play-core';
 import { ValidationError } from './power';
-// Adventure and social routers are added in the next implementation stages.
+// Server-owned state transitions share a single durable progression ledger.
 export async function settle(c:PlayContext) {
  const rows=await c.db.all('SELECT * FROM game_runs WHERE user=? AND complete=1 ORDER BY updated DESC LIMIT 80',[c.uid]);
  for(const row of rows) { const s=JSON.parse(row.state);
-  if(row.kind==='quiz') await award(c,'quiz',`quiz:${s.day}:${s.mode}`,20+Math.floor(row.score/20),row.score);
-  if(row.kind==='combat'&&s.winner==='hero') await award(c,'combat',`combat:${row.id}`,30,row.score);
-  if(row.kind==='story') await award(c,'story',`story:${s.chapter}`,40,0);
+  if(row.kind==='quiz') await award({...c,now:row.updated},'quiz',`quiz:${s.day}:${s.mode}`,20+Math.floor(row.score/20),row.score);
+  if(row.kind==='combat'&&s.winner==='hero') await award({...c,now:row.updated},'combat',`combat:${dayKey(row.updated)}:${s.hero}`,30,row.score);
+  if(row.kind==='story') await award({...c,now:row.updated},'story',`story:${s.chapter}`,40,0);
  }
  const xp=Number((await one(c,'SELECT COALESCE(SUM(xp),0) xp FROM game_events WHERE user=?',[c.uid])).xp);
  for(const a of achievements.filter(x=>xp>=x.xp)) await notify(c,c.uid,'achievement',`achievement:${a.id}`,`Achievement unlocked: ${a.name}`,'/collection');
@@ -26,6 +27,7 @@ export async function progress(c:PlayContext) {
 }
 async function router(c:PlayContext,url:URL):Promise<any> {
  const {p,body,method}=c;
+ const adventure=await adventureRouter(c);if(adventure!==undefined){await settle(c);return adventure;}
  if(p[0]==='progress'&&method==='GET') return progress(c);
  if(p[0]==='history'&&method==='GET') return {runs:await c.db.all('SELECT id,kind,score,complete,created,updated FROM game_runs WHERE user=? ORDER BY updated DESC LIMIT 60',[c.uid])};
  if(p[0]==='quests'&&method==='POST') {
@@ -46,6 +48,7 @@ async function router(c:PlayContext,url:URL):Promise<any> {
   const r=await runById(c,p[1],'quiz');
   if(method==='GET')return quizView(r);
   requireGame(!r.complete,409,'This quiz is already complete.');
+  requireGame(r.data.day===dayKey(c.now),409,'A new UTC day has begun. Start today’s quiz.');
   const s={...r.data},q=quizBank.find(q=>q.id===s.ids[s.index])!;
   if(p[2]==='hint'&&method==='POST') {s.hinted=true;return quizView(await changeRun(c,r,s,false,r.score));}
   requireGame(p[2]==='answer'&&method==='POST',404,'Quiz action not found.');

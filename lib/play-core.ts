@@ -10,8 +10,8 @@ export async function runById(c:PlayContext,id:unknown,kind?:string) {
  requireGame(row&&(!kind||row.kind===kind),404,'Adventure not found.');
  return {...row,data:JSON.parse(row.state)};
 }
-export async function newRun(c:PlayContext,kind:string,state:unknown) {
- const id=crypto.randomUUID(); await c.db.run('INSERT INTO game_runs(id,user,kind,state,version,score,complete,created,updated) VALUES(?,?,?,?,0,0,0,?,?)',[id,c.uid,kind,JSON.stringify(state),c.now,c.now]);return runById(c,id,kind);
+export async function newRun(c:PlayContext,kind:string,state:any) {
+ const id=crypto.randomUUID(); await c.db.run('INSERT INTO game_runs(id,user,kind,state,slot,version,score,complete,created,updated) VALUES(?,?,?,?,?,0,0,0,?,?)',[id,c.uid,kind,JSON.stringify(state),kind==='story'?'chapter:'+state.chapter:null,c.now,c.now]);return runById(c,id,kind);
 }
 export async function changeRun(c:PlayContext,r:any,state:any,complete=false,score=0) {
  const rows=await c.db.all('UPDATE game_runs SET state=?,version=version+1,complete=?,score=?,updated=? WHERE id=? AND user=? AND version=? RETURNING *',[JSON.stringify(state),complete?1:0,score,c.now,r.id,c.uid,r.version]);
