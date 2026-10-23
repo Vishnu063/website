@@ -292,6 +292,17 @@ export async function socialRouter(c: PlayContext): Promise<any | undefined> {
           "open",
         ],
       );
+    if (body.action === "accept")
+      await notify(
+        c,
+        i.sender,
+        i.kind === "clan" ? "clan" : "challenge",
+        "accepted:" + i.id,
+        i.kind === "clan"
+          ? "Your clan invitation was accepted."
+          : "Your arena challenge was accepted.",
+        i.kind === "clan" ? "/clans/" + i.object : "/challenges/" + i.id,
+      );
     return {
       accepted: body.action === "accept",
       href: i.kind === "clan" ? "/clans/" + i.object : "/challenges/" + i.id,

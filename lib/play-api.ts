@@ -29,32 +29,56 @@ export async function settle(c: PlayContext) {
     "SELECT * FROM game_runs WHERE user=? AND complete=1 ORDER BY updated DESC LIMIT 80",
     [c.uid],
   );
-  for (const row of rows) {
-    const s = JSON.parse(row.state);
-    if (row.kind === "quiz")
-      await award(
-        { ...c, now: row.updated },
-        "quiz",
-        `quiz:${s.day}:${s.mode}`,
-        20 + Math.floor(row.score / 20),
-        row.score,
-      );
-    if (row.kind === "combat" && s.winner === "hero" && !s.match)
-      await award(
-        { ...c, now: row.updated },
-        "combat",
-        `combat:${dayKey(row.updated)}:${s.hero}`,
-        30,
-        row.score,
-      );
-    if (row.kind === "story")
-      await award(
-        { ...c, now: row.updated },
-        "story",
-        `story:${s.chapter}`,
-        40,
-        0,
-      );
+  // Avoid rewriting every historical reward on each progress request. This
+  // keeps normal requests within modest D1 query budgets as history grows.
+  const candidates = new Map<
+    string,
+    { kind: string; xp: number; score: number; at: number }
+  >();
+  for (const row of rows.reverse()) {
+    const state = JSON.parse(row.state);
+    let source = "",
+      kind = "",
+      xp = 0,
+      score = row.score;
+    if (row.kind === "quiz") {
+      source = `quiz:${state.day}:${state.mode}`;
+      kind = "quiz";
+      xp = 20 + Math.floor(score / 20);
+    }
+    if (row.kind === "combat" && state.winner === "hero" && !state.match) {
+      source = `combat:${dayKey(row.updated)}:${state.hero}`;
+      kind = "combat";
+      xp = 30;
+    }
+    if (row.kind === "story") {
+      source = `story:${state.chapter}`;
+      kind = "story";
+      xp = 40;
+      score = 0;
+    }
+    if (source && !candidates.has(source))
+      candidates.set(source, { kind, xp, score, at: row.updated });
+  }
+  if (candidates.size) {
+    const sources = [...candidates.keys()];
+    const saved = new Set(
+      (
+        await c.db.all(
+          `SELECT source FROM game_events WHERE user=? AND source IN (${sources.map(() => "?").join(",")})`,
+          [c.uid, ...sources],
+        )
+      ).map((e) => e.source),
+    );
+    for (const [source, reward] of candidates)
+      if (!saved.has(source))
+        await award(
+          { ...c, now: reward.at },
+          reward.kind,
+          source,
+          reward.xp,
+          reward.score,
+        );
   }
   const xp = Number(
     (

@@ -439,9 +439,7 @@ export function PlayerPage({ id, tell }: { id: string; tell: Tell }) {
             onClick={() =>
               act(async () => {
                 const out = await playApi("challenges", "POST", { player: id });
-                tell(
-                  "Challenge sent. The other player can accept in Notifications.",
-                );
+                location.href = "/challenges/" + out.id;
               })
             }
           >
