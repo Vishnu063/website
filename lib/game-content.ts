@@ -38,7 +38,7 @@ export function hash(value:string) { let x=2166136261; for(const c of value) x=M
 export const dayKey=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
 export function weekKey(now=Date.now()) { const d=new Date(dayKey(now)+'T00:00:00Z'); d.setUTCDate(d.getUTCDate()-(d.getUTCDay()+6)%7); return dayKey(d.getTime()); }
 export function missions(now=Date.now()) {
- const daily=[{key:'quiz',name:'Finish three different quiz modes',kind:'quiz',goal:3,xp:45,href:'/games'}, {key:'battle',name:'Win two arena encounters',kind:'combat',goal:2,xp:50,href:'/combat'}, {key:'story',name:'Finish a story chapter',kind:'story',goal:1,xp:35,href:'/story'}, {key:'explore',name:'Discover two districts',kind:'explore',goal:2,xp:30,href:'/world'}, {key:'poll',name:'Vote in a community poll',kind:'poll',goal:1,xp:20,href:'/polls'}];
+ const daily=[{key:'quiz',name:'Finish three different quiz modes',kind:'quiz',goal:3,xp:45,href:'/games'}, {key:'battle',name:'Win two arena encounters',kind:'combat',goal:2,xp:50,href:'/combat'}, {key:'story',name:'Finish a story chapter',kind:'story',goal:1,xp:35,href:'/story'}, {key:'explore',name:'Visit two districts',kind:'explore',goal:2,xp:30,href:'/world'}, {key:'poll',name:'Vote in a community poll',kind:'poll',goal:1,xp:20,href:'/polls'}];
  const offset=hash(dayKey(now))%daily.length;
  return [...[0,1,2].map(i=>({...daily[(offset+i)%daily.length],period:dayKey(now),since:Date.parse(dayKey(now)+'T00:00:00Z')})),{key:'weekly',name:'Earn ten activity completions this week',kind:'any',goal:10,xp:120,href:'/play',period:weekKey(now),since:Date.parse(weekKey(now)+'T00:00:00Z')}];
 }

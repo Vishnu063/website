@@ -1,3 +1,4 @@
+import { socialRouter } from "./social-api";
 import { adventureRouter } from "./adventure-api";
 import type { Database, User } from './api';
 import { quizBank,quizModes,difficulties,hash,dayKey,weekKey,missions,achievements } from './game-content';
@@ -8,7 +9,7 @@ export async function settle(c:PlayContext) {
  const rows=await c.db.all('SELECT * FROM game_runs WHERE user=? AND complete=1 ORDER BY updated DESC LIMIT 80',[c.uid]);
  for(const row of rows) { const s=JSON.parse(row.state);
   if(row.kind==='quiz') await award({...c,now:row.updated},'quiz',`quiz:${s.day}:${s.mode}`,20+Math.floor(row.score/20),row.score);
-  if(row.kind==='combat'&&s.winner==='hero') await award({...c,now:row.updated},'combat',`combat:${dayKey(row.updated)}:${s.hero}`,30,row.score);
+  if(row.kind==='combat'&&s.winner==='hero'&&!s.match) await award({...c,now:row.updated},'combat',`combat:${dayKey(row.updated)}:${s.hero}`,30,row.score);
   if(row.kind==='story') await award({...c,now:row.updated},'story',`story:${s.chapter}`,40,0);
  }
  const xp=Number((await one(c,'SELECT COALESCE(SUM(xp),0) xp FROM game_events WHERE user=?',[c.uid])).xp);
@@ -27,6 +28,7 @@ export async function progress(c:PlayContext) {
 }
 async function router(c:PlayContext,url:URL):Promise<any> {
  const {p,body,method}=c;
+ const social=await socialRouter(c);if(social!==undefined){return social;}
  const adventure=await adventureRouter(c);if(adventure!==undefined){await settle(c);return adventure;}
  if(p[0]==='progress'&&method==='GET') return progress(c);
  if(p[0]==='history'&&method==='GET') return {runs:await c.db.all('SELECT id,kind,score,complete,created,updated FROM game_runs WHERE user=? ORDER BY updated DESC LIMIT 60',[c.uid])};
@@ -42,7 +44,7 @@ async function router(c:PlayContext,url:URL):Promise<any> {
    const mode=body.mode,day=dayKey(c.now),ids=quizBank.filter(q=>q.mode===mode).sort((a,b)=>hash(day+a.id)-hash(day+b.id)).slice(0,5).map(q=>q.id),seconds=body.difficulty==='easy'?70:body.difficulty==='hard'?25:45;
    // Reuse an unfinished run rather than creating unlimited state through repeated clicks.
    const existing=await one(c,"SELECT * FROM game_runs WHERE user=? AND kind='quiz' AND complete=0 ORDER BY created DESC LIMIT 1",[c.uid]);
-   if(existing&&c.now-existing.created<3600000&&JSON.parse(existing.state).mode===mode) return quizView({...existing,data:JSON.parse(existing.state)});
+   if(existing&&c.now-existing.created<3600000&&JSON.parse(existing.state).mode===mode&&JSON.parse(existing.state).day===day) return quizView({...existing,data:JSON.parse(existing.state)});
    return quizView(await newRun(c,'quiz',{mode,day,difficulty:body.difficulty,ids,index:0,seconds,deadline:c.now+seconds*1000,hinted:false}));
   }
   const r=await runById(c,p[1],'quiz');

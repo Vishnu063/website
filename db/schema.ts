@@ -110,3 +110,31 @@ export const notifications = sqliteTable("notifications", {
   title: text("title").notNull(), href: text("href").notNull(), read: integer("read").notNull().default(0),
   created: integer("created").notNull(),
 }, t => [index("notifications_owner").on(t.user,t.created)]);
+
+export const clans = sqliteTable("clans", {
+ id:text("id").primaryKey(),name:text("name").notNull().unique(),bio:text("bio").notNull(),owner:text("owner").notNull(),archived:integer("archived").notNull().default(0),created:integer("created").notNull(),
+});
+export const clanMembers=sqliteTable("clan_members",{
+ user:text("user").primaryKey(),clan:text("clan").notNull().references(()=>clans.id,{onDelete:'cascade'}),role:text("role").notNull(),joined:integer("joined").notNull(),
+},t=>[index('clan_roster').on(t.clan)]);
+export const invitations=sqliteTable('invitations',{
+ id:text('id').primaryKey(),sender:text('sender').notNull(),target:text('target').notNull(),kind:text('kind').notNull(),object:text('object').notNull(),status:text('status').notNull().default('open'),created:integer('created').notNull(),
+},t=>[index('invitations_target').on(t.target,t.status)]);
+export const tournaments=sqliteTable('tournaments',{
+ id:text('id').primaryKey(),name:text('name').notNull(),starts:integer('starts').notNull(),ends:integer('ends').notNull(),status:text('status').notNull().default('registration'),winner:text('winner'),created:integer('created').notNull(),
+});
+export const tournamentEntries=sqliteTable('tournament_entries',{
+ tournament:text('tournament').notNull().references(()=>tournaments.id,{onDelete:'cascade'}),user:text('user').notNull(),slot:integer('slot').notNull(),created:integer('created').notNull(),
+},t=>[primaryKey({columns:[t.tournament,t.user]}),uniqueIndex('entry_slot').on(t.tournament,t.slot)]);
+export const matches=sqliteTable('matches',{
+ id:text('id').primaryKey(),tournament:text('tournament').notNull().references(()=>tournaments.id,{onDelete:'cascade'}),round:integer('round').notNull(),position:integer('position').notNull(),left:text('left_user'),right:text('right_user'),winner:text('winner'),status:text('status').notNull().default('open'),
+},t=>[uniqueIndex('match_slot').on(t.tournament,t.round,t.position)]);
+export const matchEntries=sqliteTable('match_entries',{
+ match:text('match').notNull().references(()=>matches.id,{onDelete:'cascade'}),user:text('user').notNull(),run:text('run').notNull().unique(),score:integer('score'),
+},t=>[primaryKey({columns:[t.match,t.user]})]);
+export const polls=sqliteTable('polls',{
+ id:text('id').primaryKey(),owner:text('owner').notNull(),question:text('question').notNull(),options:text('options').notNull(),hidden:integer('hidden').notNull().default(0),created:integer('created').notNull(),
+});
+export const pollVotes=sqliteTable('poll_votes',{
+ poll:text('poll').notNull(),user:text('user').notNull(),choice:integer('choice').notNull(),created:integer('created').notNull(),
+},t=>[primaryKey({columns:[t.poll,t.user]})]);

@@ -1,4 +1,5 @@
 "use client";
+import {Clans,Events,Notifications,FriendChallenge,Polls,News} from "./components/social";
 import { Combat, Story, World, Collection } from "./components/adventures";
 import { useEffect, useState, useRef } from "react";
 import {
@@ -163,6 +164,7 @@ export default function Experience({
             </a>
           </nav>
           <div className="top-actions">
+            <a href="/notifications" className="icon-button" aria-label="Notifications">♧</a>
             <button
               className="icon-button sound"
               aria-label={sound ? "Mute ambient sound" : "Enable ambient sound"}
@@ -215,7 +217,7 @@ export default function Experience({
               ready={ready}
               tell={setNotice}
             />
-          ) : path === "/combat" ? (<Combat tell={setNotice}/>) : path === "/story" ? (<Story tell={setNotice}/>) : path === "/world" ? (<World tell={setNotice}/>) : path.startsWith("/collection") ? (<Collection tell={setNotice} id={path.split("/")[2]}/>) : path === "/play" ? (<PlayHub/>) : path === "/games" ? (<Games tell={setNotice}/>) : path === "/quests" ? (<Quests tell={setNotice}/>) : path === "/leaderboards" ? (<Leaderboards/>) : path.startsWith("/players/") ? (<PlayerPage id={path.split("/")[2]}/>) : path === "/profile" ? (
+          ) : path.startsWith("/clans") ? (<Clans id={path.split("/")[2]} tell={setNotice}/>) : path.startsWith("/events") ? (<Events id={path.split("/")[2]} tell={setNotice}/>) : path === "/notifications" ? (<Notifications tell={setNotice}/>) : path.startsWith("/challenges/") ? (<FriendChallenge id={path.split("/")[2]} tell={setNotice}/>) : path === "/polls" ? (<Polls tell={setNotice}/>) : path.startsWith("/news") ? (<News id={path.split("/")[2]}/>) : path.startsWith("/combat") ? (<Combat tell={setNotice} initialId={path.split("/")[2]}/>) : path === "/story" ? (<Story tell={setNotice}/>) : path === "/world" ? (<World tell={setNotice}/>) : path.startsWith("/collection") ? (<Collection tell={setNotice} id={path.split("/")[2]}/>) : path === "/play" ? (<PlayHub/>) : path === "/games" ? (<Games tell={setNotice}/>) : path === "/quests" ? (<Quests tell={setNotice}/>) : path === "/leaderboards" ? (<Leaderboards/>) : path.startsWith("/players/") ? (<PlayerPage id={path.split("/")[2]} tell={setNotice}/>) : path === "/profile" ? (
             <Profile session={session} ready={ready} tell={setNotice} />
           ) : path === "/settings" ? (
             <Preferences session={session} tell={setNotice} />

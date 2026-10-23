@@ -3,7 +3,7 @@ import { hash,dayKey } from './game-content';
 import {one,newRun,runById,changeRun,award,notify,requireGame,type PlayContext} from './play-core';
 const xpFor=async(c:PlayContext)=>Number((await one(c,'SELECT COALESCE(SUM(xp),0) xp FROM game_events WHERE user=?',[c.uid])).xp);
 export function combatView(r:any){const s=r.data;return {id:r.id,version:r.version,complete:!!r.complete,score:r.score,...s};}
-export function initialCombat(hero:string,seed:string){const f=fighters.find(f=>f.id===hero)!;return {hero,seed,day:dayKey(),turn:0,hp:f.hp,maxHp:f.hp,enemyHp:120,enemyMax:120,energy:5,burn:0,shield:0,weaken:0,enemyIntent:'strike',log:['The rival takes a measured stance. Choose a move.'],winner:null,match:null};}
+export function initialCombat(hero:string,seed:string){const f=fighters.find(f=>f.id===hero)!;return {hero,seed,day:dayKey(),turn:0,hp:f.hp,maxHp:f.hp,enemyHp:120,enemyMax:120,energy:5,burn:0,shield:0,weaken:0,enemyIntent:'strike',log:['The rival takes a measured stance. Choose a move.'],winner:null,match:null as string|null};}
 export function resolveCombat(state:any,action:string){
  const s={...state,log:[] as string[]},f=fighters.find(f=>f.id===s.hero)!;
  requireGame(['strike','special','guard','focus'].includes(action),400,'Choose a valid move.');requireGame(action!=='special'||s.energy>=4,400,'Your special needs four energy.');
@@ -27,13 +27,14 @@ export async function adventureRouter(c:PlayContext):Promise<any|undefined>{cons
  if(p[0]==='combat'){
   if(p[1]==='start'&&method==='POST'){
    requireGame(fighters.some(f=>f.id===body.hero),400,'Choose an original hero.');
-   const active=await one(c,"SELECT * FROM game_runs WHERE user=? AND kind='combat' AND complete=0 ORDER BY updated DESC LIMIT 1",[c.uid]);
+   const active=await one(c,"SELECT * FROM game_runs WHERE user=? AND kind='combat' AND slot IS NULL AND complete=0 ORDER BY updated DESC LIMIT 1",[c.uid]);
    if(active&&c.now-active.updated<3600000)return combatView({...active,data:JSON.parse(active.state)});
    return combatView(await newRun(c,'combat',initialCombat(body.hero,crypto.randomUUID())));
   }
   const r=await runById(c,p[1],'combat');if(method==='GET')return combatView(r);
   requireGame(method==='POST'&&p[2]==='move',404,'Combat action not found.');requireGame(!r.complete&&body.version===r.version,409,'This encounter has changed. Reload to continue.');
   const s=resolveCombat(r.data,body.action),score=s.winner==='hero'?Math.max(10,600-s.turn*15+s.hp):0;
+  if(s.match&&!s.match.startsWith('challenge:')){const match=await one(c,"SELECT m.status,t.status tournament_status,t.ends FROM matches m JOIN tournaments t ON t.id=m.tournament WHERE m.id=?",[s.match]);requireGame(match&&match.status==='open'&&match.tournament_status==='active'&&c.now<match.ends,409,'This tournament match is closed.');}
   return combatView(await changeRun(c,r,s,!!s.winner,score));
  }
  if(p[0]==='story'){
@@ -59,17 +60,17 @@ export async function adventureRouter(c:PlayContext):Promise<any|undefined>{cons
   return {id:out.id,version:out.version,complete,scene:sceneFor({...s,scene:Math.min(s.scene,2)}),state:s};
  }
  if(p[0]==='world'){
-  const xp=await xpFor(c),level=1+Math.floor(xp/100),events=await c.db.all("SELECT source FROM game_events WHERE user=? AND kind='explore'",[c.uid]);
+  const xp=await xpFor(c),level=1+Math.floor(xp/100),events=await c.db.all("SELECT source FROM game_events WHERE user=? AND kind='codex'",[c.uid]);
   if(method==='GET')return {level,locations:districts.map(d=>({...d,unlocked:level>=d.level,discovered:events.some(e=>e.source==='explore:'+d.id)}))};
   requireGame(method==='POST',405,'Method not allowed.');const location=districts.find(d=>d.id===body.location);requireGame(location&&level>=location.level,403,'Earn more XP to open this district.');
-  await award(c,'explore','explore:'+location!.id,15);return {discovery:location!.discovery,npc:location!.npc,line:location!.line};
+  await award(c,'codex','explore:'+location!.id,15);await award(c,'explore','visit:'+dayKey(c.now)+':'+location!.id,0);return {discovery:location!.discovery,npc:location!.npc,line:location!.line};
  }
  if(p[0]==='collection'){
   const xp=await xpFor(c),player=await one(c,'SELECT settings FROM game_players WHERE user=?',[c.uid]),settings=JSON.parse(player.settings);
   if(method==='GET')return {xp,equipped:settings.cosmetic||'akira',characters:collections.map(ch=>({...ch,unlocked:xp>=ch.xp}))};
   requireGame(method==='POST',405,'Method not allowed.');const ch=collections.find(ch=>ch.id===body.id);requireGame(ch&&xp>=ch.xp,403,'Earn this edition before equipping it.');
   // Atomic SQL updates are handled by settings router to avoid overwriting concurrent preference changes.
-  settings.cosmetic=ch!.id;await c.db.run('UPDATE game_players SET settings=? WHERE user=?',[JSON.stringify(settings),c.uid]);return {equipped:ch!.id};
+  const previous=player.settings;settings.cosmetic=ch!.id;const changed=await c.db.all('UPDATE game_players SET settings=? WHERE user=? AND settings=? RETURNING user',[JSON.stringify(settings),c.uid,previous]);requireGame(changed.length,409,'Your preferences changed. Reload before equipping.');return {equipped:ch!.id};
  }
  return undefined;
 }
