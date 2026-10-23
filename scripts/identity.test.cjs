@@ -1,4 +1,4 @@
-const {test}=require('node:test');const assert=require('node:assert/strict');const I=require('../dist/identity-core.js');
+const {test}=require('node:test');const assert=require('node:assert/strict');const I=require('../public/legacy/identity-core.js');
 test('shared persona retains Unicode and every customization',()=>{const s=I.clean({...I.defaults,name:'夜の旅人 ✧',frame:'masculine',outfit:'pilot',world:'neon',skin:'deep',hair:'bob',hairColor:'ocean',accent:'mint',accessory:'headphones'});assert.deepEqual(I.decode(I.encode(s)),s)});
 test('untrusted links cannot inject colors, markup or invalid choices',()=>{assert.equal(I.decode('#v=99&name=test'),null);assert.equal(I.decode('x'.repeat(2050)),null);const s=I.decode('#v=1&name=%3Cscript%3Ex%3C%2Fscript%3E&hairColor=url(evil)&outfit=broken');assert.equal(s.hairColor,I.defaults.hairColor);assert.equal(s.outfit,I.defaults.outfit);const svg=I.render(s);assert(!svg.includes('<script>'));assert(svg.includes('&lt;script&gt;'))});
 test('empty names recover and controls are stripped',()=>{assert.equal(I.clean({name:'\n\t'}).name,'Wanderer');assert.equal(Array.from(I.clean({name:'😀'.repeat(40)}).name).length,24)});

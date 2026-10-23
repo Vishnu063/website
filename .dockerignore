@@ -1,5 +1,12 @@
 .git
-.github
-.openai
-docs
 node_modules
+dist
+.sites-runtime
+.wrangler
+.env*
+.dev.vars*
+outputs
+backups
+playwright-report
+test-results
+*.tsbuildinfo

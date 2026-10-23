@@ -1,120 +1,131 @@
-# Yoru · Beyond the ordinary
+# ANIMEVERSE
 
-A cinematic eleven-page anime discovery website. Midnight blue, warm apricot, original anime artwork, and stories that stay with you.
+**Discover your power. Meet your rival. Begin your story.**
 
-[Open the website](https://yoru-anime-vishnu.vishnukushwaha63.chatgpt.site) · [DevOps practice roadmap](docs/devops-roadmap.md)
+A working anime identity experience connected to a database-backed battle discussion community. Phase 1 evolves Yoru while preserving its eleven discovery and character-creation pages.
 
-## Sample screenshot
+[Open the owner-private Site](https://yoru-anime-vishnu.vishnukushwaha63.chatgpt.site) · [Implementation plan](docs/phase-1-plan.md) · [Verification report](docs/phase-1-verification.md) · [Operations](docs/operations.md)
 
-Latest: the guided illustrated studio
+## Actual running website
 
-![Yoru illustrated identity studio](docs/portrait-studio.jpg)
+Browser capture of the implemented application, not concept art:
 
-Actual browser capture of the homepage:
+![ANIMEVERSE running homepage](docs/animeverse-home.jpg)
 
-![Yoru anime website homepage](docs/homepage.jpg)
+## Phase 1 features
 
-New: the portrait club
+- Cinematic responsive home, original characters, mobile navigation, reduced motion, keyboard focus and optional synthesized ambient sound, off by default.
+- Five-question guest power test: original hero archetype, power, faction, strengths, weakness, rival and story prompt. All 1,024 answer combinations are deterministic; they are not 1,024 unique illustrations.
+- Reproducible `/hero/01230` URLs, generated 1200 × 630 PNG social cards and personalized 1080 × 1350 character-card downloads. Shared links contain the answer code; custom names remain in downloaded cards and saved profiles.
+- Account-backed battle creation with conditions/scenarios, one final vote per account, actual totals, replies, follows, share links and search over the latest 50 discussions.
+- Hosted ChatGPT sign-in integration, durable saved heroes and profiles, account-data deletion, reports, blocking and allowlisted moderation with audit history.
+- Original editorial guidance, privacy/terms and optional browser-local event diagnostics. No external tracking or ad service is installed.
+- Original Yoru character builder, portrait editions, saved browser creations and discovery pages preserved under `/legacy/`. Old `.html` URLs redirect there.
 
-![Muses adult anime character gallery](docs/muses.jpg)
+There are no fabricated users, votes, rankings or rewards. A new community can truthfully display an empty arena. Playable daily quests, story chapters, 3D worlds, tournaments and guilds remain later phases. The earlier unpublished cinematic-video experiment is not part of this release.
 
-Anime Identity Studio:
+## Architecture
 
-![Anime Identity Studio customizer](docs/identity-studio.jpg)
+```mermaid
+flowchart TD
+    A[Guest and signed-in browsers] --> B[React UI and Vinext server]
+    C[Sites-managed ChatGPT identity] --> B
+    B --> D[Validated API and authorization]
+    D --> E[D1 database and Drizzle migrations]
+```
 
-## Eleven pages
+React 19, TypeScript, Tailwind CSS 4, Lucide, Vinext/Vite, Workers, D1/SQLite and Drizzle. Original WebP artwork and system fonts minimize external requests. The Sites starter's deployment and identity integrations are preserved.
 
-| Page | What you can do |
-|---|---|
-| Home | Discover the featured worlds and stories |
-| Discover | Search six original stories and combine genre filters |
-| Worlds | Explore three settings and jump to related stories |
-| Characters | Meet six original characters and open their story |
-| Journal | Read three complete reflections in accessible dialogs |
-| My Collection | Save and remove favourites; persists in this browser |
-| Muses | Meet adult heroines Akira (28) and Luna (30), with gently moving portraits |
-| Atelier | Switch muse, choose Dusk/Noir/Dream lighting, save the look locally |
-| Moon Garden | Moonlit animated scene, fireflies, reflections, and a motion pause control |
-| Character Builder | Quiz, six vector presets, feature customization, undo/redo, saved gallery and PNG exports |
-| Create Identity | Three detailed illustrated portraits, guided creation, card styling, lighting, framing, surprises and matching identity kit |
+**Architecture adaptation:** the current host uses Workers, D1 and managed sign-in. This is not a PostgreSQL/Prisma deployment or a standard Next.js Node server. The Docker/nginx configuration is an EC2-compatible **development lab**, using local Workers/D1 emulation. Independent AWS production requires a production runtime/authentication adapter and PostgreSQL migration if that database is chosen. Do not trust client-supplied identity headers outside the Sites gateway.
 
-Responsive layouts, mobile navigation, keyboard focus styles, reduced-motion support, and native dialogs. This is an original fictional showcase, not a streaming service. Favourites are browser-local; there is no account/backend sync.
+## Routes
 
-## Run
+| Route | Function |
+| --- | --- |
+| `/` | Discover and enter |
+| `/power`, `/hero/[code]` | Guest power test and shared identity |
+| `/arena`, `/battle/[id]` | Community discussions, voting and replies |
+| `/community` | Discussion discovery and original editorial guidance |
+| `/profile` | Saved hero, display name, followed discussions and blocks |
+| `/settings` | Accessibility, diagnostics, sign-out and data deletion |
+| `/privacy`, `/terms` | Data practices and community rules |
+| `/admin` | Server-allowlisted moderators only |
+| `/api/health` | Real database readiness, including 503 on failure |
+| `/legacy/` | Eleven preserved Yoru experiences |
 
-No npm installation, paid APIs, or build step required. Node 22+ and Python 3 are enough:
+## Install and run
+
+Use Node.js 24. Tests use built-in `node:sqlite`. No paid AI API or key is required.
+
+```bash
+npm ci
+npm run build
+node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --file drizzle/0000_tired_hobgoblin.sql
+npm run dev
+```
+
+Open the URL printed by the server. Apply the initial migration **once** to a new local database; subsequently apply only new migrations. Run `npm run db:generate` when authoring schema changes. Never modify already-applied migration history. Hosted deployment applies the committed migrations separately.
+
+Portable loopback development supports the starter's mock sign-in. Managed cloud preview intentionally disables it. Mock identity tests do not prove that live OAuth sign-in succeeded.
+
+## Docker lab
+
+```bash
+docker compose up --build -d --wait
+curl --fail http://localhost:8080/api/health
+docker compose logs -f app
+```
+
+Pending local migrations apply on startup. Named `app-data` and `app-backups` volumes persist state. Nginx strips identity headers, so the lab is guest-only. Account features use hosted Sites authentication. `wrangler dev` emulates Workers/D1 here; do not expose it as a public production server. Docker was unavailable in the authoring environment; do not assume this configuration passed a Docker test.
+
+## Environment variables
+
+See [.env.example](.env.example). Keep `.env`, `.dev.vars`, credentials and backups out of Git.
+
+| Name | Purpose |
+| --- | --- |
+| `DB` | D1 binding provisioned from `.openai/hosting.json` |
+| `ADMIN_USER_IDS` | Comma-separated site-specific IDs authorized to moderate; server setting only |
+| `E2E_BASE_URL` | Separately running target for Playwright tests |
+| `DATA_DIRECTORY` | Local SQLite backup helper state directory |
+
+No moderator is granted automatically. The owner must configure real site user IDs before inviting a wider community. A signed-in `/api/session` response identifies the current site-scoped ID. The app never asks for passwords or adds a second session stack.
+
+## Tests
 
 ```bash
 npm run check
-npm start
-# http://localhost:8080
+npm run build
+npm audit --omit=dev --audit-level=high
+npm audit
+npm run test:e2e
 ```
 
-Or run with Docker:
+For the CLI browser suite, install Chromium with `npx playwright install chromium` and start the target separately. The suite contains desktop/mobile guest tests for power completion, card download, shared result, guest rejection, navigation and health. See the verification report for which tests were actually run.
 
-```bash
-docker compose up --build -d
-curl http://localhost:8080/health.json
-docker compose down
-```
+GitHub Actions defines dependency install, type checking, unit/API integration tests, production-dependency audit, a separately uploaded full audit report, production build, Docker build/start, readiness, Playwright and failure logs. Full-tooling audit findings are reported rather than silently treated as a clean result. No automatic AWS deployment target or credentials are configured.
 
-## Ready for DevOps practice
+## Security and privacy
 
-- `Dockerfile`, `compose.yaml`, and nginx config for container deployment.
-- `/health.json` on every host; `/health` additionally on nginx.
-- GitHub Actions definition: validate pages/assets, build Docker, smoke-test all eleven pages.
-- [Seven practical lab stages](docs/devops-roadmap.md): Linux/Git → Docker → CI → EC2 → CD/rollback → Kubernetes → monitoring.
+- Platform-owned identity and sessions. Every protected API action authorizes the server identity; client roles or supplied owner IDs are never trusted.
+- Same-origin `Origin` checks, JSON-only writes, 8 KB payload limit, validated fields and parameterized SQL. React renders user text without raw HTML/Markdown execution.
+- Database primary key enforces one vote per battle/account, including concurrent attempts. Per-account writes are throttled to 30 requests per minute per API resource. This is not complete protection against multiple accounts or coordinated abuse.
+- Blocking, reports, restricted moderator actions and audit records. Configure/staff moderation before public launch.
+- Production CSP, content-type protection, referrer policy and permissions policy. Framework inline scripts/styles currently require `unsafe-inline`; strict nonce-based CSP remains future hardening.
+- Settings can delete app profile, saved hero and activity, including created discussions and associated replies. This does not delete a ChatGPT account or operator backups.
+- Optional diagnostic events stay in the browser. No external analytics, advertising, payment processing or per-visitor AI generation.
 
-Docker and the CI workflow are provided for practice; the Docker build was not run in the authoring environment. No cloud resources or AWS deployment have been configured.
+The full dependency audit currently includes remaining build-tool advisories. See [verification](docs/phase-1-verification.md); a clean production-only npm audit is not proof that all dependencies or the application are vulnerability-free.
 
-## Verification
+Artwork is original AI-generated anime-inspired artwork already produced for the project; see [art notes](docs/portrait-art.md). No unauthorized franchise images, models, clips or streams are added. Text fan commentary is independent and not official. Privacy and terms describe implementation, not legal certification.
 
-Passed locally: JavaScript syntax, eleven page entrypoints, local asset references, artwork presence and health JSON. Browser verified: homepage appearance, combined genre/search filtering, favourites retained across navigation, and story dialog opening/closing. New browser checks: muse and lighting selection, saved look surviving reload, garden pause (computed animation state), and reflection changes. Responsive CSS is included; a physical mobile-device check remains useful.
+## Status and roadmap
 
-## Source layout
+The Phase 1 foundation is implemented and tested at the API level. Live hosted sign-in, two real-account interactions, moderator configuration and independent AWS production are still verification/operations work. The audience remains owner-private; shared links do not grant friends access. Robots and page metadata intentionally discourage indexing until public launch. Canonical URLs, sitemap, structured site metadata and dynamic hero social previews are prepared.
 
-```text
-dist/           Eleven HTML pages, shared CSS/JS, optimized artwork
-scripts/        Dependency-free structural checks
-docs/           Real browser screenshot and DevOps roadmap
-.github/        CI workflow
-```
+1. Verify live sign-in/save/vote flows with two real accounts; configure moderators, contact details, retention and backups.
+2. Phase 2: guessing game, meaningful daily missions, real score-based rankings and opt-in notifications.
+3. Phase 3: persistent branching stories, strategic turn-based battles, collections and one explorable district.
+4. Phase 4: quality rigged 3D models, guilds and scheduled tournaments.
 
-## Artwork and credits
-
-Hero and six scene panels are original AI-generated anime illustrations made for Yoru with the built-in image generation tool, optimized into `dist/assets/hero.webp` and `scenes.webp`. No franchise character assets or third-party fan models are bundled. Fonts: DM Sans and Manrope from Google Fonts; system sans-serif fallback works offline.
-
-Artwork briefs: (1) cinematic lone rooftop traveler over a teal Japanese town at sunset, (2) six original anime scenes: ember swordswoman, neon memory courier, moon astronomer, ocean adventurer, sunset train and floating islands.
-
-## Portrait club animation
-
-The new pages reuse the original adult heroine artwork. Animation consists of CSS camera drift, floating fireflies and portrait movement; these are 2D illustrations, not rigged 3D or frame-animated characters. Reduced-motion preferences are respected. A new artwork generation request failed due to a service parameter error, so no new generated image was added for this version.
-
-## Anime Identity Studio — v1.2
-
-- Six original starting looks: Luna, Kael, Mira, Reina, Sora and Yuki.
-- Edit name, feminine/masculine portrait, hair shape/colour, skin tone, eye colour, expression, clothing, accessories, signature colour and world.
-- Real artwork changes: facial expression, hairstyles, outfit geometry, colour and backdrop all update in the SVG preview.
-- Three-question creative persona quiz with an editable result.
-- Undo/redo for up to 40 states; save up to 12 personas in a device-local gallery; reload and remix saved looks.
-- Downloads: 1080×1350 persona PNG, 1024×1024 profile PNG and matching 1500×500 banner PNG.
-- Versioned sharing links restore the selected name and every appearance choice. Links require access to the hosting website; the current Sites publication remains owner-private. Public launch is a separate hosting decision.
-- A short fictional origin fragment follows the chosen world.
-
-Artwork in the creator is original procedural vector illustration, not photorealistic generation, rigged 3D, or bespoke painted character art. No external image generation API runs for visitors. There are no checkout flows, accounts, paid packs, live ads, analytics, public gallery or scheduled content drops in this release.
-
-Verified in browser: presets/customization, save/reload, undo/redo, share-link restoration, three quiz questions/result application, and actual downloads. Downloaded PNGs were inspected as 1080×1350, 1024×1024 and 1500×500. Automated checks cover malformed share links, Unicode names, XML escaping, actual outfit/world export differences, and namespaced SVG gradients so gallery colours remain independent.
-
-[Future business and advertising plan](docs/business-plan.md).
-
-## Illustrated Portrait Editions — v1.3
-
-The primary Create Identity experience now uses three detailed original AI-generated illustrations: Akira (28), Luna (30), and Ren (30). The simplified navigation keeps Home, Create Identity, Discover and Muses visible, with other existing pages under Explore.
-
-One guided path: choose a portrait → personalize → download/share. Change the name, title, motto, layout (Cinema/Gallery/Nocturne), signature accent, lighting (Natural/Dusk/Noir), zoom and vertical framing. Preview Card/Profile/Banner before downloading. Save up to eight looks locally, restore exact editions from sharing links, or use the optional Surprise me control for a new coordinated combination.
-
-The illustrations have fixed faces/hair/outfits. This mode changes card composition, lighting, crop and text; it does not regenerate or edit clothing. The separate Character Builder retains modular hair/outfit/feature edits. There is no per-visitor AI generation, account requirement or photo upload. Surprises are random curated combinations, not a guarantee of a globally unique result for each visitor.
-
-Exported PNGs were verified at 1080×1350 (card), 1080×1080 (profile), and 1500×500 (banner). Browser checks covered personalization, save, exact shared-link restoration, surprises and simpler navigation. A standalone retry verified the banner file after an initial browser download file failed to appear. Automated checks cover artwork existence, shared-state validation, invalid values, Unicode and surprise presets. Physical mobile-device verification remains pending.
-
-Artwork credits and generation briefs: [portrait-art.md](docs/portrait-art.md). The current Sites publication remains owner-private; public audience and ad-network integrations are not enabled.
+High-quality 3D requires actual rigged models, UV textures, coherent topology, animations and mobile LOD budgets. Existing 2D artwork is not presented as production-quality 3D. Core gameplay stays free; future cosmetics or editorial sponsors must not create paid battle advantages.

@@ -2,7 +2,7 @@
 import json
 from pathlib import Path
 from html.parser import HTMLParser
-root = Path(__file__).resolve().parents[1] / 'dist'
+root = Path(__file__).resolve().parents[1] / 'public' / 'legacy'
 class References(HTMLParser):
     def handle_starttag(self, tag, attrs):
         for key, value in attrs:

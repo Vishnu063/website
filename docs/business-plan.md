@@ -1,3 +1,7 @@
+# ANIMEVERSE Phase 1 business direction
+
+The current acquisition hypothesis is an enjoyable guest power test and voluntary sharing. Community debates and followed discussions provide a first return mechanism. Daily missions and deeper games are later work. These are hypotheses, not validated demand or revenue. The Site remains owner-private. No ads, payment processing or external analytics are installed.
+
 # Yoru business plan
 
 ## Available now

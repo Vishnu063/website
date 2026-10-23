@@ -1,25 +1,39 @@
-name: Website checks
+name: ANIMEVERSE quality and readiness
 on: [push, pull_request]
+permissions:
+  contents: read
 jobs:
-  check:
+  quality:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+          node-version: '24'
+          cache: npm
+      - run: npm ci
       - run: npm run check
-      - run: docker build -t yoru:test .
-      - run: |
-          docker run -d --name yoru -p 8080:80 yoru:test
-          for attempt in $(seq 1 20); do
-            if curl -fsS http://localhost:8080/health.json; then break; fi
-            sleep 1
-          done
-          curl -fsS http://localhost:8080/health.json
-          for page in index discover worlds characters journal collection muses atelier garden studio portraits; do
-            curl -fsS "http://localhost:8080/$page.html" > /dev/null
-          done
+      - run: npm audit --omit=dev --audit-level=high
+      - name: Full dependency audit including build tools
+        run: npm audit --json > dependency-audit.json
+        continue-on-error: true
+      - run: npm run build
+      - run: docker compose build
+      - run: docker compose up -d --wait --wait-timeout 180
+      - name: Actual database readiness
+        run: curl --fail --retry 10 --retry-delay 3 http://localhost:8080/api/health
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+        env:
+          E2E_BASE_URL: http://127.0.0.1:8080
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dependency-audit
+          path: dependency-audit.json
+      - name: Failure logs
+        if: failure()
+        run: docker compose logs --tail=120
+      - name: Stop lab
+        if: always()
+        run: docker compose down
